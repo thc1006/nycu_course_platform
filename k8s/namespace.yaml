@@ -1,0 +1,11 @@
+# Kubernetes Namespace Configuration
+# Isolates resources for the NYCU Course Platform
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nycu-platform
+  labels:
+    name: nycu-platform
+    environment: production
+    app: nycu-course-platform

@@ -1,0 +1,62 @@
+# Kustomization Configuration - Kubernetes Resource Management
+# Allows easy customization for different environments
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Namespace for all resources
+namespace: nycu-platform
+
+# Common labels applied to all resources
+commonLabels:
+  app: nycu-course-platform
+  managed-by: kustomize
+
+# Common annotations
+commonAnnotations:
+  deployed-by: kubernetes
+  version: "1.0.0"
+
+# Resources to include
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - secrets.yaml
+  - postgres-statefulset.yaml
+  - backend-deployment.yaml
+  - frontend-deployment.yaml
+  - ingress.yaml
+
+# Image configurations
+images:
+  - name: nycu-platform/backend
+    newName: your-registry/nycu-platform-backend
+    newTag: latest
+  - name: nycu-platform/frontend
+    newName: your-registry/nycu-platform-frontend
+    newTag: latest
+
+# ConfigMap generator (optional)
+configMapGenerator:
+  - name: app-version
+    literals:
+      - VERSION=1.0.0
+      - BUILD_DATE=2025-10-16
+
+# Secret generator (use for non-sensitive defaults only)
+# For production, use external secret management
+secretGenerator:
+  - name: example-secret
+    literals:
+      - example=placeholder
+
+# Patches for environment-specific customizations
+# patchesStrategicMerge:
+#   - overlays/production/patch.yaml
+
+# Replicas override (optional)
+# replicas:
+#   - name: backend
+#     count: 5
+#   - name: frontend
+#     count: 3
