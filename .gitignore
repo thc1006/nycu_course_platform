@@ -62,6 +62,8 @@ dist/
 build/
 .cache/
 
-# Data files (large raw data files)
+# Data files (large raw data files) - excluding LFS-tracked files
 scraper/data/real_courses_nycu/*.json
+!scraper/data/real_courses_nycu/raw_data_all_semesters.json
 scraper/data/*/raw_data*.json
+!scraper/data/real_courses_nycu/raw_data_all_semesters.json
