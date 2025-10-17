@@ -1,0 +1,9 @@
+{
+  "title": "課程瀏覽器",
+  "subtitle": "瀏覽和搜索國立陽明交通大學的課程",
+  "features": {
+    "smartSearch": "智能搜尋",
+    "scheduleBuilder": "課程表構建器",
+    "courseAnalytics": "課程分析"
+  }
+}

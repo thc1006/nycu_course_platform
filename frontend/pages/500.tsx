@@ -15,6 +15,7 @@ import React, { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 /**
  * 500 server error page component
@@ -261,4 +262,12 @@ export default function ServerErrorPage() {
       </div>
     </>
   );
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common', 'error'])),
+    },
+  };
 }

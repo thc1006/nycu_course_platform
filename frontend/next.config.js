@@ -6,14 +6,15 @@ const { i18n } = require('./next-i18next.config');
 const nextConfig = {
   i18n,
   reactStrictMode: true,
-  experimental: {
-    appDir: false
-  },
   typescript: {
     ignoreBuildErrors: true
   },
   eslint: {
     ignoreDuringBuilds: true
+  },
+  webpack: (config, { isServer }) => {
+    config.optimization.usedExports = false;
+    return config;
   },
   async rewrites() {
     return [

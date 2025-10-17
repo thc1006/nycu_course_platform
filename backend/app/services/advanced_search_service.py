@@ -10,8 +10,10 @@ from typing import Any, Optional
 
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from backend.app.models.course import Course
+from backend.app.models.semester import Semester
 from backend.app.utils.cache import cache
 from backend.app.utils.exceptions import DatabaseError
 
@@ -59,10 +61,10 @@ class AdvancedSearchService:
         try:
             filters = []
 
-            # Semester filter
+            # Semester filter - join with Semester table
             if semesters:
                 semester_filters = [
-                    and_(Course.acy == acy, Course.sem == sem)
+                    and_(Semester.acy == acy, Semester.sem == sem)
                     for acy, sem in semesters
                 ]
                 filters.append(or_(*semester_filters))
@@ -98,13 +100,17 @@ class AdvancedSearchService:
                 ]
                 filters.append(or_(*keyword_filters))
 
-            # Build query
-            stmt = select(Course)
+            # Build query with semester join if needed
+            stmt = select(Course).options(joinedload(Course.semester))
+            if semesters:
+                stmt = stmt.join(Semester)
             if filters:
                 stmt = stmt.where(and_(*filters))
 
             # Get total count
             count_stmt = select(func.count()).select_from(Course)
+            if semesters:
+                count_stmt = count_stmt.join(Semester)
             if filters:
                 count_stmt = count_stmt.where(and_(*filters))
 
@@ -143,24 +149,33 @@ class AdvancedSearchService:
         """
         try:
             filters = []
+            has_semester_filter = False
             if acy:
-                filters.append(Course.acy == acy)
+                filters.append(Semester.acy == acy)
+                has_semester_filter = True
             if sem:
-                filters.append(Course.sem == sem)
+                filters.append(Semester.sem == sem)
+                has_semester_filter = True
 
-            # Build base query
+            # Build base query with semester join if needed
             base_query = select(Course)
+            if has_semester_filter:
+                base_query = base_query.join(Semester)
             if filters:
                 base_query = base_query.where(and_(*filters))
 
             # Total courses
             total_stmt = select(func.count()).select_from(Course)
+            if has_semester_filter:
+                total_stmt = total_stmt.join(Semester)
             if filters:
                 total_stmt = total_stmt.where(and_(*filters))
             total = await self.session.scalar(total_stmt) or 0
 
             # Courses by department
             dept_stmt = select(Course.dept, func.count()).group_by(Course.dept)
+            if has_semester_filter:
+                dept_stmt = dept_stmt.select_from(Course).join(Semester)
             if filters:
                 dept_stmt = dept_stmt.where(and_(*filters))
             dept_result = await self.session.execute(dept_stmt)
@@ -222,7 +237,7 @@ class AdvancedSearchService:
 
             # Search for exact matches
             search_pattern = f"%{query}%"
-            stmt = select(Course).where(
+            stmt = select(Course).options(joinedload(Course.semester)).where(
                 or_(
                     Course.name.ilike(search_pattern),
                     Course.crs_no.ilike(search_pattern),
@@ -275,7 +290,7 @@ class AdvancedSearchService:
                 return []
 
             # Find similar courses (same dept, similar credits)
-            stmt = select(Course).where(
+            stmt = select(Course).options(joinedload(Course.semester)).where(
                 and_(
                     Course.dept == reference.dept,
                     Course.credits >= reference.credits - 1,

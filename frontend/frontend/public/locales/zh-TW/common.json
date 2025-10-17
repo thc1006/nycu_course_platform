@@ -1,0 +1,24 @@
+{
+  "header": {
+    "title": "國立陽明交通大學課程平台",
+    "description": "瀏覽和搜索國立陽明交通大學的課程"
+  },
+  "nav": {
+    "home": "首頁",
+    "browse": "瀏覽課程",
+    "schedule": "我的課程表",
+    "language": "語言"
+  },
+  "footer": {
+    "copyright": "© 2024 國立陽明交通大學課程平台。版權所有。",
+    "quickLinks": "快速連結",
+    "contact": "聯絡我們"
+  },
+  "common": {
+    "loading": "載入中...",
+    "error": "錯誤",
+    "save": "保存",
+    "back": "返回",
+    "search": "搜尋"
+  }
+}

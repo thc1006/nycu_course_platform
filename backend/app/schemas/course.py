@@ -21,6 +21,8 @@ class CourseBase(BaseModel):
     dept: Optional[str] = Field(None, description="Department code")
     time: Optional[str] = Field(None, description="Time/schedule code")
     classroom: Optional[str] = Field(None, description="Classroom location code")
+    syllabus: Optional[str] = Field(None, description="Course syllabus/outline (English)")
+    syllabus_zh: Optional[str] = Field(None, description="Course syllabus in Traditional Chinese")
     details: Optional[str] = Field(None, description="JSON string with metadata")
 
 
@@ -39,6 +41,8 @@ class CourseUpdate(BaseModel):
     dept: Optional[str] = None
     time: Optional[str] = None
     classroom: Optional[str] = None
+    syllabus: Optional[str] = None
+    syllabus_zh: Optional[str] = None
     details: Optional[str] = None
 
 

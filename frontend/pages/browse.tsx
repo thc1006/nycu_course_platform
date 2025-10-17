@@ -1,213 +1,334 @@
-'use client'
-
-import React, { useState, useEffect } from 'react'
-import { useTranslation } from 'next-i18next'
-import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import { Header } from '@/components/Layout/Header'
-import { AdvancedFilter } from '@/components/Filters/AdvancedFilter'
-import { CourseCard } from '@/components/Course/CourseCard'
-import axios from 'axios'
+import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { Header } from '../components/Header';
+import { FilterPanel, FilterState } from '../components/FilterPanel';
+import { CourseCard } from '../components/CourseCard';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 interface Course {
-  id: number
-  crs_no: string
-  name: string
-  teacher: string
-  credits: number
-  dept: string
-  time: string
-  classroom: string
-  acy: number
-  sem: number
-}
-
-interface FilterState {
-  semesters: number[]
-  departments: string[]
-  minCredits: number | null
-  maxCredits: number | null
-  keywords: string
+  id: number;
+  crs_no: string;
+  name: string;
+  teacher: string;
+  credits: number;
+  dept: string;
+  time: string;
+  classroom: string;
+  acy: number;
+  sem: number;
 }
 
 export default function BrowsePage() {
-  const { t } = useTranslation('common')
-  const [darkMode, setDarkMode] = useState(false)
-  const [courses, setCourses] = useState<Course[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const { t } = useTranslation('common');
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     semesters: [],
     departments: [],
     minCredits: null,
     maxCredits: null,
     keywords: '',
-  })
-  const [total, setTotal] = useState(0)
-  const [limit] = useState(12)
-  const [offset, setOffset] = useState(0)
+  });
+  const [total, setTotal] = useState(0);
+  const [limit] = useState(12);
+  const [offset, setOffset] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Load dark mode preference
-  useEffect(() => {
-    const saved = localStorage.getItem('darkMode')
-    if (saved) setDarkMode(JSON.parse(saved))
-  }, [])
+  const fetchCourses = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const params: any = {
+        limit,
+        offset,
+      };
 
-  // Fetch courses
-  useEffect(() => {
-    const fetchCourses = async () => {
-      setLoading(true)
-      setError(null)
-      try {
-        const response = await axios.post(
-          'http://localhost:8000/api/advanced/filter',
-          {},
-          {
-            params: {
-              semesters: filters.semesters.length > 0 ? filters.semesters : undefined,
-              departments: filters.departments.length > 0 ? filters.departments : undefined,
-              min_credits: filters.minCredits,
-              max_credits: filters.maxCredits,
-              keywords: filters.keywords ? [filters.keywords] : undefined,
-              limit,
-              offset,
-            },
-          }
-        )
-        setCourses(response.data.courses)
-        setTotal(response.data.total)
-      } catch (err) {
-        setError('Failed to fetch courses')
-        console.error(err)
-      } finally {
-        setLoading(false)
+      if (filters.semesters.length > 0) {
+        params.semesters = filters.semesters;
       }
-    }
+      if (filters.departments.length > 0) {
+        params.departments = filters.departments;
+      }
+      if (filters.minCredits !== null) {
+        params.min_credits = filters.minCredits;
+      }
+      if (filters.maxCredits !== null) {
+        params.max_credits = filters.maxCredits;
+      }
+      if (filters.keywords || searchQuery) {
+        params.keywords = [filters.keywords || searchQuery].filter(Boolean);
+      }
 
-    fetchCourses()
-  }, [filters, offset, limit])
+      // Use relative path to enable Next.js rewrites proxy to backend API
+      const response = await axios.post(
+        '/api/advanced/filter',
+        {},
+        {
+          params,
+          timeout: 10000, // 10 second timeout
+        }
+      );
+
+      setCourses(response.data.courses || []);
+      setTotal(response.data.total || 0);
+    } catch (err) {
+      setError('Failed to fetch courses');
+      console.error(err);
+      setCourses([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, offset, limit, searchQuery]);
+
+  useEffect(() => {
+    fetchCourses();
+  }, [fetchCourses]);
 
   const handleFilterChange = (newFilters: FilterState) => {
-    setFilters(newFilters)
-    setOffset(0)
-  }
+    setFilters(newFilters);
+    setOffset(0);
+  };
 
-  const handleDarkModeToggle = (enabled: boolean) => {
-    setDarkMode(enabled)
-    localStorage.setItem('darkMode', JSON.stringify(enabled))
-  }
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setOffset(0);
+  };
+
+  const handleAddToSchedule = (courseId: number) => {
+    const savedSchedule = localStorage.getItem('schedule');
+    const schedule = savedSchedule ? JSON.parse(savedSchedule) : [];
+    if (!schedule.includes(courseId)) {
+      schedule.push(courseId);
+      localStorage.setItem('schedule', JSON.stringify(schedule));
+    }
+  };
+
+  const totalPages = Math.ceil(total / limit);
+  const currentPage = Math.floor(offset / limit) + 1;
+
+  const goToPage = (page: number) => {
+    setOffset((page - 1) * limit);
+  };
+
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    let start = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let end = Math.min(totalPages, start + maxVisible - 1);
+
+    if (end - start + 1 < maxVisible) {
+      start = Math.max(1, end - maxVisible + 1);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => goToPage(i)}
+          className={`
+            px-3 py-1 rounded-lg text-sm font-medium transition-all
+            ${
+              i === currentPage
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }
+          `}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    return pages;
+  };
 
   return (
-    <div className={darkMode ? 'dark' : ''}>
-      <div className="min-h-screen bg-white dark:bg-slate-950">
-        {/* Header */}
-        <Header
-          darkMode={darkMode}
-          onDarkModeToggle={handleDarkModeToggle}
-          onLanguageChange={(lang) => console.log('Language changed to:', lang)}
-        />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Header onSearch={handleSearch} />
 
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Sidebar - Filters */}
-            <div className="lg:col-span-1">
-              <AdvancedFilter onFilterChange={handleFilterChange} />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          {/* Sidebar - Filters */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-24">
+              <FilterPanel onFilterChange={handleFilterChange} />
+            </div>
+          </div>
+
+          {/* Main - Courses */}
+          <div className="lg:col-span-3">
+            {/* Page Header */}
+            <div className="mb-6 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Course Catalog
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading courses...
+                  </span>
+                ) : (
+                  <>
+                    Showing {courses.length > 0 ? `${offset + 1}-${Math.min(offset + limit, total)}` : '0'} of {total.toLocaleString()} courses
+                  </>
+                )}
+              </p>
             </div>
 
-            {/* Main - Courses */}
-            <div className="lg:col-span-3">
-              {/* Page Title */}
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                  Available Courses
-                </h2>
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                <p className="text-red-700 dark:text-red-400">{error}</p>
+              </div>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-72 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Course Grid */}
+            {!loading && courses.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8 animate-fade-in">
+                {courses.map(course => (
+                  <CourseCard
+                    key={course.id}
+                    {...course}
+                    onAddToSchedule={handleAddToSchedule}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!loading && courses.length === 0 && !error && (
+              <div className="bg-white dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-200 dark:border-gray-700">
+                <div className="mb-4">
+                  <svg
+                    className="w-16 h-16 mx-auto text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M12 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  No courses found
+                </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Showing {courses.length} of {total} courses
+                  Try adjusting your filters or search query
                 </p>
               </div>
+            )}
 
-              {/* Error Message */}
-              {error && (
-                <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg text-red-700 dark:text-red-400">
-                  {error}
-                </div>
-              )}
-
-              {/* Loading State */}
-              {loading && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {[...Array(6)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-64 bg-gray-200 dark:bg-slate-800 rounded-lg animate-pulse"
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Course Grid */}
-              {!loading && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                  {courses.map(course => (
-                    <CourseCard
-                      key={course.id}
-                      {...course}
-                      onAddToSchedule={(id) => console.log('Add to schedule:', id)}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Empty State */}
-              {!loading && courses.length === 0 && (
-                <div className="text-center py-12">
-                  <p className="text-gray-600 dark:text-gray-400">
-                    No courses found matching your filters
-                  </p>
-                </div>
-              )}
-
-              {/* Pagination */}
-              {total > limit && (
-                <div className="flex items-center justify-between pt-6 border-t border-gray-200 dark:border-slate-700">
+            {/* Pagination */}
+            {total > limit && (
+              <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between">
                   <button
-                    onClick={() => setOffset(Math.max(0, offset - limit))}
-                    disabled={offset === 0}
-                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 disabled:opacity-50"
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
-                    ← Previous
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
                   </button>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">
-                    Page {Math.floor(offset / limit) + 1} of {Math.ceil(total / limit)}
+
+                  <div className="hidden sm:flex items-center gap-2">
+                    {currentPage > 3 && (
+                      <>
+                        <button
+                          onClick={() => goToPage(1)}
+                          className="px-3 py-1 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                        >
+                          1
+                        </button>
+                        {currentPage > 4 && (
+                          <span className="text-gray-500 dark:text-gray-400">...</span>
+                        )}
+                      </>
+                    )}
+
+                    {renderPageNumbers()}
+
+                    {currentPage < totalPages - 2 && (
+                      <>
+                        {currentPage < totalPages - 3 && (
+                          <span className="text-gray-500 dark:text-gray-400">...</span>
+                        )}
+                        <button
+                          onClick={() => goToPage(totalPages)}
+                          className="px-3 py-1 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                        >
+                          {totalPages}
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  <span className="sm:hidden text-sm text-gray-600 dark:text-gray-400">
+                    Page {currentPage} of {totalPages}
                   </span>
+
                   <button
-                    onClick={() => setOffset(offset + limit)}
-                    disabled={offset + limit >= total}
-                    className="px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 text-gray-700 dark:text-gray-300 disabled:opacity-50"
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
-                    Next →
+                    Next
+                    <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        </main>
+        </div>
+      </main>
 
-        {/* Footer */}
-        <footer className="bg-gray-50 dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-600 dark:text-gray-400 text-sm">
-            <p>NYCU Course Platform • All courses information is up-to-date</p>
-          </div>
-        </footer>
-      </div>
+      {/* Footer */}
+      <footer className="mt-12 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            NYCU Course Platform • {total.toLocaleString()} courses available
+          </p>
+        </div>
+      </footer>
     </div>
-  )
+  );
 }
 
 export async function getStaticProps({ locale }: { locale: string }) {
-  return {
-    props: {
-      ...(await serverSideTranslations(locale, ['common'])),
-    },
+  try {
+    const translations = await serverSideTranslations(locale, ['common', 'home', 'course', 'schedule', 'error']);
+    return {
+      props: {
+        ...translations,
+      },
+      revalidate: 3600, // ISR: Revalidate every hour
+    };
+  } catch (error) {
+    console.error('Error in getStaticProps:', error);
+    return {
+      notFound: true,
+      revalidate: 60, // Try again after 1 minute on error
+    };
   }
 }

@@ -12,7 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.config import settings
 from backend.app.database.session import init_db, close_db
-from backend.app.routes import courses, semesters, advanced_search
+from backend.app.routes import courses, semesters, advanced_search, search
+from backend.app.middleware.performance import setup_performance_middleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -66,9 +67,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Setup performance middleware (compression, rate limiting, monitoring)
+setup_performance_middleware(app)
+
 # Include routers
 app.include_router(semesters.router, prefix="/api/semesters", tags=["semesters"])
 app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
+app.include_router(search.router, prefix="/api/courses", tags=["search"])
 app.include_router(advanced_search.router, prefix="/api/advanced", tags=["advanced"])
 
 

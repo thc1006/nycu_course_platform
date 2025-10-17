@@ -1,0 +1,18 @@
+{
+  "title": "My Schedule",
+  "subtitle": "View and manage your course schedule",
+  "empty": "Your schedule is empty",
+  "addCourses": "Add courses to get started",
+  "totalCredits": "Total Credits",
+  "courses": "Courses",
+  "removeAll": "Clear Schedule",
+  "confirmRemove": "Are you sure you want to remove this course?",
+  "confirmClear": "Are you sure you want to clear your entire schedule?",
+  "export": "Export Schedule",
+  "print": "Print Schedule",
+  "share": "Share Schedule",
+  "noCourses": "No courses in your schedule",
+  "conflicts": "Schedule Conflicts",
+  "noConflicts": "No conflicts detected",
+  "hasConflicts": "Time conflicts detected"
+}

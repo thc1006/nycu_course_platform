@@ -27,6 +27,8 @@ import {
 import { useCourses } from '@/lib/hooks/useCourses';
 import type { Course } from '@/lib/types';
 
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
 /**
  * Schedule page component
  */
@@ -160,9 +162,34 @@ export default function SchedulePage() {
     }, 0);
   }, [scheduledCourses]);
 
-  // Don't render until client-side to avoid hydration mismatch
+  // Return skeleton/loading state during hydration mismatch prevention
+  // This prevents hydration issues by ensuring server and client render the same UI
   if (!isClient) {
-    return null;
+    return (
+      <>
+        <Head>
+          <title>My Schedule - NYCU Course Platform</title>
+          <meta
+            name="description"
+            content="View and manage your NYCU course schedule"
+          />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </Head>
+        <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
+          <Header />
+          <main className="flex-1 container mx-auto px-4 py-8">
+            <div className="mb-8">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 animate-pulse">
+                My Schedule
+              </h1>
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+              <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            </div>
+          </main>
+        </div>
+      </>
+    );
   }
 
   return (
@@ -456,4 +483,22 @@ export default function SchedulePage() {
       </div>
     </>
   );
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+  try {
+    const translations = await serverSideTranslations(locale, ['common', 'home', 'course', 'schedule', 'error']);
+    return {
+      props: {
+        ...translations,
+      },
+      revalidate: 3600, // ISR: Revalidate every hour
+    };
+  } catch (error) {
+    console.error('Error in getStaticProps:', error);
+    return {
+      notFound: true,
+      revalidate: 60, // Try again after 1 minute on error
+    };
+  }
 }

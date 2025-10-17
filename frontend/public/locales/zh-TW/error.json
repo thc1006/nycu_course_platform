@@ -1,0 +1,21 @@
+{
+  "title": "錯誤",
+  "notFound": "找不到頁面",
+  "notFoundDescription": "您查找的頁面不存在。",
+  "serverError": "伺服器錯誤",
+  "serverErrorDescription": "發生了意外錯誤。請稍後再試。",
+  "badRequest": "請求錯誤",
+  "badRequestDescription": "請求無效。請檢查您的輸入。",
+  "unauthorized": "未授權",
+  "unauthorizedDescription": "您沒有權限訪問此資源。",
+  "forbidden": "禁止訪問",
+  "forbiddenDescription": "此資源的訪問被拒絕。",
+  "loadingFailed": "載入失敗",
+  "loadingFailedDescription": "載入所請求的資源失敗。",
+  "retry": "重試",
+  "goHome": "返回首頁",
+  "contactSupport": "聯絡支持",
+  "errorOccurred": "發生錯誤",
+  "tryAgain": "再試一次",
+  "goBack": "返回"
+}

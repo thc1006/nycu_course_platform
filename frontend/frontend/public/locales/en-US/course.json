@@ -1,0 +1,16 @@
+{
+  "title": "Course Details",
+  "courseCode": "Course Code",
+  "courseName": "Course Name",
+  "instructor": "Instructor",
+  "credits": "Credits",
+  "department": "Department",
+  "schedule": "Schedule",
+  "classroom": "Classroom",
+  "semester": "Semester",
+  "syllabus": "Course Syllabus",
+  "syllabusContent": "Course Outline",
+  "noSyllabus": "No course syllabus available",
+  "addToSchedule": "Add to Schedule",
+  "removeFromSchedule": "Remove from Schedule"
+}

@@ -14,6 +14,7 @@ import React from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 /**
  * 404 error page component
@@ -181,4 +182,12 @@ export default function NotFoundPage() {
       </div>
     </>
   );
+}
+
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common', 'error'])),
+    },
+  };
 }

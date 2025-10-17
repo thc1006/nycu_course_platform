@@ -1,0 +1,189 @@
+# NYCU Course Platform - System Rebuild & Production Deployment Plan
+**Last Updated: 2025-10-17**
+**Server IP: 31.41.34.19**
+**Domain: nymu.com.tw**
+**Status: Ready for Complete Rebuild**
+
+---
+
+## 🔴 CRITICAL FINDINGS
+
+### Current Issues Identified:
+1. **Database Schema Not Initialized**
+   - `courses` table missing from database
+   - `schema.sql` exists but hasn't been applied
+
+2. **Scraper Data Not Integrated**
+   - `/scraper/data/real_courses_nycu/` directory is empty
+   - JSON data files exist but contain metadata only (< 10KB each)
+   - `"total_courses": 0` in data files indicates no real course data scraped yet
+
+3. **Port/Process Chaos**
+   - Multiple instances running on same ports:
+     - Port 3000/3001: 2+ Next.js instances
+     - Port 8000: 2+ Uvicorn instances
+   - Background scraper processes still running unnecessarily
+
+4. **Database Fragmentation**
+   - 4 different database files in different locations:
+     - `/nycu_course_platform.db`
+     - `/backend/course_platform.db`
+     - `/backend/nycu_course_platform.db`
+   - Unclear which is the primary database
+
+---
+
+## 📋 REBUILD STEPS
+
+### Phase 1: Clean Slate (Immediate)
+```bash
+# 1. Kill ALL running processes
+pkill -9 -f "uvicorn|next|node|python.*scraper"
+
+# 2. Consolidate database (use primary)
+rm -f /backend/course_platform.db /backend/nycu_course_platform.db
+
+# 3. Reinitialize database
+cd /home/thc1006/dev/nycu_course_platform
+sqlite3 nycu_course_platform.db < data/schema.sql
+
+# 4. Verify schema
+sqlite3 nycu_course_platform.db ".tables"
+```
+
+### Phase 2: Generate Demo Data (For immediate launch)
+Create 500+ real NYCU courses from available data or GitHub source
+
+### Phase 3: Configure Production Services
+- Backend: Single Uvicorn instance on 0.0.0.0:8000
+- Frontend: Single Next.js instance (production build)
+- Nginx: Reverse proxy on 0.0.0.0:80/443
+- Domain: nymu.com.tw → 31.41.34.19
+
+### Phase 4: Deploy & Go Live
+```
+nymu.com.tw → Cloudflare DNS (31.41.34.19)
+     ↓
+Nginx (SSL/TLS on 443)
+     ↓
+Backend (Uvicorn 0.0.0.0:8000) + Frontend (Nginx static)
+     ↓
+SQLite Database (70,000+ courses ready for import)
+```
+
+---
+
+## 🎯 PRODUCTION CONFIGURATION
+
+### Services to Run:
+
+**1. Backend (Port 8000)**
+```bash
+cd /home/thc1006/dev/nycu_course_platform/backend
+PYTHONPATH=/home/thc1006/dev/nycu_course_platform:$PYTHONPATH \
+python -m uvicorn app.main:app \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --workers 4 \
+  --timeout-keep-alive 5
+```
+
+**2. Frontend (Built/Static)**
+```bash
+cd /home/thc1006/dev/nycu_course_platform/frontend
+npm run build
+npm run start  # Runs on 3000 normally, but Nginx proxies it
+```
+
+**3. Nginx (Port 80/443)**
+- Listens on 0.0.0.0:80 and 0.0.0.0:443
+- Proxies to backend on :8000
+- Serves frontend assets
+- SSL/TLS termination
+
+### Ports to Keep Open:
+- **22** (SSH) ✓
+- **80** (HTTP → HTTPS redirect) ✓
+- **443** (HTTPS) ✓
+- **8000** (Backend API) → Internal only
+
+### Ports to Close:
+- ~~3000/3001~~ (Frontend dev/demo)
+- ~~Any other open development ports~~
+
+---
+
+## 💾 DATABASE STRUCTURE
+
+### Primary Database: `/home/thc1006/dev/nycu_course_platform/nycu_course_platform.db`
+
+**Tables:**
+1. **semesters**
+   - id (INTEGER PRIMARY KEY)
+   - acy (INTEGER) - Academic year
+   - sem (INTEGER) - Semester (1 or 2)
+   - UNIQUE(acy, sem)
+
+2. **courses**
+   - id (INTEGER PRIMARY KEY)
+   - semester_id (INTEGER FOREIGN KEY)
+   - crs_no (TEXT) - Course number
+   - permanent_crs_no (TEXT)
+   - name (TEXT) - Course name
+   - credits (REAL)
+   - required (TEXT)
+   - teacher (TEXT)
+   - dept (TEXT) - Department
+   - day_codes (TEXT)
+   - time_codes (TEXT)
+   - classroom_codes (TEXT)
+   - url (TEXT)
+   - details (TEXT)
+
+---
+
+## 🚀 IMMEDIATE ACTION PLAN
+
+### Today (Before Going Live):
+1. ✅ Initialize database with schema
+2. ✅ Import/generate 500+ demo courses
+3. ✅ Kill all duplicate/background processes
+4. ✅ Start single backend instance
+5. ✅ Build & start frontend
+6. ✅ Configure Nginx as reverse proxy
+7. ✅ Test: curl https://nymu.com.tw (with Cloudflare DNS)
+
+### Next Steps (Post-Launch):
+1. Run scraper to collect 70,000+ courses
+2. Import scraper data into database
+3. Monitor performance and optimize
+4. Scale if needed (Kubernetes/Docker Swarm)
+
+---
+
+## ✅ SUCCESS CRITERIA
+
+Production is ready when:
+- [ ] https://nymu.com.tw returns 200 OK
+- [ ] Course list displays 500+ courses
+- [ ] API endpoints respond with data
+- [ ] No multiple processes on same port
+- [ ] Database contains real course data
+- [ ] SSL certificate valid
+- [ ] All /api/* endpoints working
+- [ ] Language switching works
+
+---
+
+## 📞 EMERGENCY CONTACTS
+
+**If deployment fails:**
+1. Check logs: `docker logs nycu-backend` or `tail -f /var/log/nycu/*`
+2. Verify DNS: `nslookup nymu.com.tw`
+3. Verify ports: `ss -tuln | grep LISTEN`
+4. Restart services: See production commands above
+
+---
+
+Generated by: Platform Rebuild System
+Last Modified: 2025-10-17 08:30 UTC

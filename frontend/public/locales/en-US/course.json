@@ -1,0 +1,21 @@
+{
+  "title": "Course Details",
+  "courseCode": "Course Code",
+  "courseName": "Course Name",
+  "instructor": "Instructor",
+  "credits": "Credits",
+  "department": "Department",
+  "schedule": "Schedule",
+  "classroom": "Classroom",
+  "semester": "Semester",
+  "description": "Description",
+  "prerequisites": "Prerequisites",
+  "addToSchedule": "Add to Schedule",
+  "removeFromSchedule": "Remove from Schedule",
+  "addedSuccess": "Added to your schedule",
+  "removedSuccess": "Removed from your schedule",
+  "alreadyInSchedule": "This course is already in your schedule",
+  "noDescription": "No description available",
+  "noPrerequisites": "No prerequisites",
+  "notFound": "Course not found"
+}

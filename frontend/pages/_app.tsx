@@ -1,74 +1,49 @@
-/**
- * Custom App Component
- *
- * This is the root component that wraps all pages in the Next.js application.
- * Features:
- * - Global styles import
- * - Error boundary for graceful error handling
- * - Layout wrapper
- * - Internationalization (i18n) support
- * - Performance monitoring (optional)
- */
-
 import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { appWithTranslation } from 'next-i18next';
+import { ThemeProvider } from 'next-themes';
 import nextI18NextConfig from '../next-i18next.config';
+import React, { Component, ReactNode } from 'react';
 
-/**
- * Custom App component
- *
- * @param {AppProps} props - App props containing Component and pageProps
- * @returns {JSX.Element} The rendered app
- */
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
-  /**
-   * Page view tracking (optional - for analytics)
-   */
   useEffect(() => {
     const handleRouteChange = (url: string) => {
-      // You can add analytics tracking here
-      // Example: gtag('config', 'GA_MEASUREMENT_ID', { page_path: url });
       console.log('Page changed to:', url);
     };
 
     router.events.on('routeChangeComplete', handleRouteChange);
 
-    // Cleanup
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange);
     };
   }, [router.events]);
 
-  /**
-   * Prevent scroll restoration on route change (optional)
-   */
   useEffect(() => {
-    // Restore scroll position after navigation
     if ('scrollRestoration' in window.history) {
       window.history.scrollRestoration = 'manual';
     }
   }, []);
 
   return (
-    <ErrorBoundary>
-      <Component {...pageProps} />
-    </ErrorBoundary>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange={false}
+      storageKey="nycu-theme"
+    >
+      <ErrorBoundary>
+        <Component {...pageProps} />
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 
 export default appWithTranslation(MyApp, nextI18NextConfig);
-
-/**
- * Error Boundary Component
- *
- * Catches and handles React errors gracefully
- */
-import React, { Component, ReactNode } from 'react';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -96,25 +71,23 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error to console or error reporting service
     console.error('Error caught by boundary:', error, errorInfo);
-
-    // You can send error to an error tracking service here
-    // Example: Sentry.captureException(error);
   }
 
   handleReset = () => {
+    // Simply reset error state without redirecting to avoid infinite loops
+    // The error boundary will re-render children normally after state reset
     this.setState({
       hasError: false,
       error: null,
     });
-    window.location.href = '/';
+    console.log('ErrorBoundary reset - component will attempt to render again');
   };
 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
           <div className="max-w-md w-full text-center">
             <div className="mb-8">
               <svg
@@ -132,16 +105,16 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               </svg>
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
               Oops! Something went wrong
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               We encountered an unexpected error. Please try again.
             </p>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-left">
-                <p className="text-sm font-mono text-red-800 break-all">
+              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-left">
+                <p className="text-sm font-mono text-red-800 dark:text-red-400 break-all">
                   {this.state.error.message}
                 </p>
               </div>
@@ -150,13 +123,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             <div className="space-x-4">
               <button
                 onClick={() => window.location.reload()}
-                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition dark:bg-blue-500 dark:hover:bg-blue-600"
               >
                 Reload Page
               </button>
               <button
                 onClick={this.handleReset}
-                className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                className="inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
               >
                 Go Home
               </button>

@@ -1,0 +1,21 @@
+{
+  "title": "Error",
+  "notFound": "Page Not Found",
+  "notFoundDescription": "The page you are looking for does not exist.",
+  "serverError": "Server Error",
+  "serverErrorDescription": "An unexpected error occurred. Please try again later.",
+  "badRequest": "Bad Request",
+  "badRequestDescription": "The request was invalid. Please check your input.",
+  "unauthorized": "Unauthorized",
+  "unauthorizedDescription": "You do not have permission to access this resource.",
+  "forbidden": "Forbidden",
+  "forbiddenDescription": "Access to this resource is denied.",
+  "loadingFailed": "Loading Failed",
+  "loadingFailedDescription": "Failed to load the requested resource.",
+  "retry": "Retry",
+  "goHome": "Go Home",
+  "contactSupport": "Contact Support",
+  "errorOccurred": "An error occurred",
+  "tryAgain": "Try Again",
+  "goBack": "Go Back"
+}

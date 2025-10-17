@@ -1,0 +1,9 @@
+{
+  "title": "Course Explorer",
+  "subtitle": "Browse and search courses for NYCU",
+  "features": {
+    "smartSearch": "Smart Search",
+    "scheduleBuilder": "Schedule Builder",
+    "courseAnalytics": "Course Analytics"
+  }
+}

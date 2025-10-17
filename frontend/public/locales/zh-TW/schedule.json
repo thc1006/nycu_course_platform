@@ -1,0 +1,18 @@
+{
+  "title": "我的課表",
+  "subtitle": "查看並管理您的課程表",
+  "empty": "您的課表為空",
+  "addCourses": "新增課程開始",
+  "totalCredits": "總學分",
+  "courses": "課程",
+  "removeAll": "清空課表",
+  "confirmRemove": "確定要移除此課程嗎？",
+  "confirmClear": "確定要清空整個課表嗎？",
+  "export": "匯出課表",
+  "print": "列印課表",
+  "share": "分享課表",
+  "noCourses": "課表中沒有課程",
+  "conflicts": "課程衝突",
+  "noConflicts": "未偵測到衝突",
+  "hasConflicts": "偵測到上課時間衝突"
+}

@@ -20,6 +20,7 @@
  */
 
 import React, { useMemo } from 'react';
+import { useTranslation } from 'next-i18next';
 import { Course } from '../../lib/types';
 
 /**
@@ -45,6 +46,8 @@ const CourseDetail: React.FC<CourseDetailProps> = ({
   onBack,
   onAddToSchedule,
 }) => {
+  const { t, i18n } = useTranslation('course');
+
   /**
    * Parse and format the details JSON field
    */
@@ -220,6 +223,47 @@ const CourseDetail: React.FC<CourseDetailProps> = ({
               />
             )}
           </div>
+
+          {/* Course Syllabus / Outline Section */}
+          {(course.syllabus || course.syllabus_zh) && (
+            <div className="border-t pt-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                {t('syllabus') || 'Course Syllabus'}
+              </h2>
+
+              <div className="space-y-6">
+                {/* English Syllabus */}
+                {course.syllabus && (
+                  <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                    <h3 className="text-lg font-semibold text-blue-900 mb-3">📖 English (English)</h3>
+                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                      {course.syllabus}
+                    </div>
+                  </div>
+                )}
+
+                {/* Chinese Syllabus */}
+                {course.syllabus_zh && (
+                  <div className="bg-amber-50 rounded-lg p-6 border border-amber-200">
+                    <h3 className="text-lg font-semibold text-amber-900 mb-3">📖 繁體中文 (Traditional Chinese)</h3>
+                    <div className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                      {course.syllabus_zh}
+                    </div>
+                  </div>
+                )}
+
+                {/* No Syllabus Message */}
+                {!course.syllabus && !course.syllabus_zh && (
+                  <div className="bg-gray-50 rounded-lg p-6 text-center text-gray-600">
+                    {t('noSyllabus') || 'No course syllabus available'}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Additional Details */}
           {parsedDetails && (

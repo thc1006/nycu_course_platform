@@ -1,0 +1,24 @@
+{
+  "header": {
+    "title": "NYCU Course Platform",
+    "description": "Browse and explore courses at National Yang Ming Chiao Tung University"
+  },
+  "nav": {
+    "home": "Home",
+    "browse": "Browse Courses",
+    "schedule": "My Schedule",
+    "language": "Language"
+  },
+  "footer": {
+    "copyright": "© 2024 NYCU Course Platform. All rights reserved.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact Us"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "save": "Save",
+    "back": "Back",
+    "search": "Search"
+  }
+}
