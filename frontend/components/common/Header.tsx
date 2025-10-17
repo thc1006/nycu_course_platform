@@ -18,6 +18,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 /**
  * Header component with responsive navigation
@@ -94,6 +96,7 @@ const Header: React.FC = () => {
             >
               About
             </Link>
+            <LanguageSwitcher />
           </nav>
 
           {/* Search Box - Desktop */}
@@ -209,6 +212,11 @@ const Header: React.FC = () => {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
+            </div>
+
+            {/* Mobile Language Switcher */}
+            <div className="pt-4 border-t">
+              <LanguageSwitcher className="justify-between" />
             </div>
           </div>
         )}

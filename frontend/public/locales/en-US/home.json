@@ -1,0 +1,35 @@
+{
+  "title": "Course Explorer",
+  "subtitle": "Browse and search courses for NYCU",
+  "filters": {
+    "title": "Filters",
+    "semesterLabel": "Select Semester",
+    "searchLabel": "Search Courses",
+    "departmentLabel": "Filter by Department",
+    "searchPlaceholder": "Search by course name or number...",
+    "activeFilters": "Active filters:",
+    "fallSemester": "Fall",
+    "springSemester": "Spring"
+  },
+  "results": {
+    "title": "Course Results",
+    "noCourses": "No courses found",
+    "showing": "Showing",
+    "course": "course",
+    "courses": "courses",
+    "moreAvailable": "more available",
+    "tryAdjusting": "Try adjusting your filters or search query",
+    "loadMore": "Load More",
+    "loadingMore": "Loading...",
+    "clearAllFilters": "Clear all filters"
+  },
+  "errors": {
+    "loadCoursesError": "Failed to load courses. Please try again.",
+    "loadSemestersError": "Failed to load semesters"
+  },
+  "actions": {
+    "addToSchedule": "Add to Schedule",
+    "addSuccess": "Course added to schedule!",
+    "alreadyAdded": "Course is already in your schedule!"
+  }
+}

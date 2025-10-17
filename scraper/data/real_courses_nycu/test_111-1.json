@@ -1,0 +1,107 @@
+{
+  "timestamp": "2025-10-17T05:04:06.383938",
+  "test_semester": "111-1",
+  "total_courses": 7522,
+  "courses": [
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515107",
+      "name": "電子實驗(一)",
+      "teacher": "陳立洲",
+      "credits": 2.0,
+      "time": "Ma,Mb,Mc,Md",
+      "classroom": ""
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515120",
+      "name": "電子實驗(一)",
+      "teacher": "陳立洲",
+      "credits": 2.0,
+      "time": "Wa,Wb,Wc,Wd",
+      "classroom": ""
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515127",
+      "name": "電子實驗(一)",
+      "teacher": "王夢偉",
+      "credits": 2.0,
+      "time": "Ma,Mb,Mc,Md",
+      "classroom": ""
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515128",
+      "name": "電子實驗(一)",
+      "teacher": "林容瑋、陳柏宏、柯明道",
+      "credits": 2.0,
+      "time": "Ta,Tb,Tc,Td",
+      "classroom": ""
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515129",
+      "name": "電子實驗(一)",
+      "teacher": "王夢偉",
+      "credits": 2.0,
+      "time": "Wa,Wb,Wc,Wd",
+      "classroom": ""
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515134",
+      "name": "電子學(一)",
+      "teacher": "陳科宏",
+      "credits": 3.0,
+      "time": "M7,M8,R3,R4",
+      "classroom": "EE105[GF]"
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515135",
+      "name": "電子學(一)",
+      "teacher": "李義明",
+      "credits": 3.0,
+      "time": "M7,M8,R3,R4",
+      "classroom": "ED219[GF]"
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515136",
+      "name": "電子學(一)",
+      "teacher": "陳巍仁",
+      "credits": 3.0,
+      "time": "M7,M8,R3,R4",
+      "classroom": "ED116[GF]"
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515137",
+      "name": "電子學(一)",
+      "teacher": "孟慶宗",
+      "credits": 3.0,
+      "time": "M7,M8,R3,R4",
+      "classroom": "ED303[GF]"
+    },
+    {
+      "acy": 111,
+      "sem": 1,
+      "crs_no": "515138",
+      "name": "電子學(一)",
+      "teacher": "董蘭榮",
+      "credits": 3.0,
+      "time": "M7,M8,R3,R4",
+      "classroom": "EE207[GF]"
+    }
+  ]
+}

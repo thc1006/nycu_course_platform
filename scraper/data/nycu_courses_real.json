@@ -1,0 +1,52 @@
+{
+  "source": "NYCU Timetable System API",
+  "timestamp": "2025-10-17T04:44:29.050458",
+  "semesters_discovered": [
+    "1141",
+    "113X",
+    "1132",
+    "1131",
+    "112X",
+    "1122",
+    "1121",
+    "111X",
+    "1112",
+    "1111",
+    "110X",
+    "1102",
+    "1101"
+  ],
+  "all_semesters_count": 80,
+  "status": "Data source identified",
+  "notes": [
+    "NYCU course data is available through timetable.nycu.edu.tw",
+    "Semesters available: 110-114",
+    "Course data returned in HTML table format from getViewHtmlContents endpoint",
+    "Requires HTML parsing and table extraction",
+    "Consider using existing NYCU timetable GitHub scrapers for production"
+  ],
+  "data_sources_found": [
+    {
+      "name": "NYCU Timetable System",
+      "url": "https://timetable.nycu.edu.tw/",
+      "api_endpoints": [
+        "?r=main/get_acysem (get semesters)",
+        "?r=main/getViewHtmlContents (get courses)",
+        "?r=main/get_type (get course types)",
+        "?r=main/get_college (get colleges)",
+        "?r=main/get_dep (get departments)"
+      ]
+    },
+    {
+      "name": "NYCU Official Course Registration",
+      "url": "https://course.nycu.edu.tw/en/",
+      "format": "Web interface with course catalog"
+    },
+    {
+      "name": "NYCU Open CourseWare",
+      "url": "https://ocw.nycu.edu.tw/",
+      "format": "Free course materials and syllabi",
+      "coverage": "20+ courses"
+    }
+  ]
+}

@@ -6,6 +6,7 @@
  * - Global styles import
  * - Error boundary for graceful error handling
  * - Layout wrapper
+ * - Internationalization (i18n) support
  * - Performance monitoring (optional)
  */
 
@@ -13,6 +14,8 @@ import '../styles/globals.css';
 import type { AppProps } from 'next/app';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { appWithTranslation } from 'next-i18next';
+import nextI18NextConfig from '../next-i18next.config';
 
 /**
  * Custom App component
@@ -20,7 +23,7 @@ import { useRouter } from 'next/router';
  * @param {AppProps} props - App props containing Component and pageProps
  * @returns {JSX.Element} The rendered app
  */
-export default function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   /**
@@ -57,6 +60,8 @@ export default function MyApp({ Component, pageProps }: AppProps) {
     </ErrorBoundary>
   );
 }
+
+export default appWithTranslation(MyApp, nextI18NextConfig);
 
 /**
  * Error Boundary Component

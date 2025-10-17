@@ -1,0 +1,35 @@
+{
+  "title": "課程探索",
+  "subtitle": "瀏覽並搜尋國立陽明交通大學的課程",
+  "filters": {
+    "title": "篩選條件",
+    "semesterLabel": "選擇學期",
+    "searchLabel": "搜尋課程",
+    "departmentLabel": "依系所篩選",
+    "searchPlaceholder": "依課程名稱或課號搜尋...",
+    "activeFilters": "已套用的篩選條件：",
+    "fallSemester": "上學期",
+    "springSemester": "下學期"
+  },
+  "results": {
+    "title": "課程結果",
+    "noCourses": "未找到課程",
+    "showing": "顯示",
+    "course": "門課程",
+    "courses": "門課程",
+    "moreAvailable": "還有更多課程",
+    "tryAdjusting": "請嘗試調整篩選條件或搜尋關鍵字",
+    "loadMore": "載入更多",
+    "loadingMore": "載入中...",
+    "clearAllFilters": "清除所有篩選條件"
+  },
+  "errors": {
+    "loadCoursesError": "無法載入課程。請重試。",
+    "loadSemestersError": "無法載入學期資訊"
+  },
+  "actions": {
+    "addToSchedule": "加入課表",
+    "addSuccess": "課程已加入課表！",
+    "alreadyAdded": "該課程已在您的課表中！"
+  }
+}

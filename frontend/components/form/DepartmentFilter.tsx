@@ -166,7 +166,7 @@ const DepartmentFilter: React.FC<DepartmentFilterProps> = ({
  * Compact variant of DepartmentFilter for inline use
  */
 export const CompactDepartmentFilter: React.FC<DepartmentFilterProps> = ({
-  departments,
+  departments = [],
   value = '',
   onChange,
   disabled = false,
@@ -179,7 +179,7 @@ export const CompactDepartmentFilter: React.FC<DepartmentFilterProps> = ({
     [onChange]
   );
 
-  const sortedDepartments = [...departments].sort((a, b) => a.localeCompare(b));
+  const sortedDepartments = [...(departments || [])].sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="relative inline-block">
@@ -219,11 +219,11 @@ export const CompactDepartmentFilter: React.FC<DepartmentFilterProps> = ({
  * Multi-select variant for selecting multiple departments
  */
 export const MultiDepartmentFilter: React.FC<{
-  departments: string[];
-  value: string[];
+  departments?: string[];
+  value?: string[];
   onChange: (departments: string[]) => void;
   label?: string;
-}> = ({ departments, value, onChange, label }) => {
+}> = ({ departments = [], value = [], onChange, label }) => {
   const toggleDepartment = useCallback(
     (dept: string) => {
       if (value.includes(dept)) {
@@ -239,7 +239,7 @@ export const MultiDepartmentFilter: React.FC<{
     onChange([]);
   }, [onChange]);
 
-  const sortedDepartments = [...departments].sort((a, b) => a.localeCompare(b));
+  const sortedDepartments = [...(departments || [])].sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="w-full">

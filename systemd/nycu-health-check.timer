@@ -1,0 +1,11 @@
+[Unit]
+Description=NYCU Platform Health Check Timer
+Requires=nycu-health-check.service
+
+[Timer]
+OnBootSec=60s
+OnUnitActiveSec=5min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

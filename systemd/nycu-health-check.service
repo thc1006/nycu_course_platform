@@ -1,0 +1,12 @@
+[Unit]
+Description=NYCU Platform Health Check
+After=nycu-platform.service
+Wants=nycu-health-check.timer
+
+[Service]
+Type=oneshot
+User=root
+ExecStart=/usr/local/bin/nycu-health-check.sh
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nycu-health-check

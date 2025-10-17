@@ -1,0 +1,216 @@
+{
+  "requests": [
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_default_lang",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/getViewHtmlContents",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_time_code",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_acysem",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_type",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_category",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_college",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_dep",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_group",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_grade",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_class",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/getCouserTypeCampus",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_classroom_code",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_type",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_category",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_college",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_dep",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_group",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_grade",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_class",
+      "method": "POST",
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/getViewHtmlContents",
+      "method": "POST",
+      "type": "xhr"
+    }
+  ],
+  "responses": [
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_default_lang",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/getViewHtmlContents",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_acysem",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_type",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_category",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_college",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_dep",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_group",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_grade",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_class",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_time_code",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_type",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_category",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_college",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_dep",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_group",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_grade",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_class",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/get_classroom_code",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/getCouserTypeCampus",
+      "status": 200,
+      "type": "xhr"
+    },
+    {
+      "url": "https://timetable.nycu.edu.tw/?r=main/getViewHtmlContents",
+      "status": 200,
+      "type": "xhr"
+    }
+  ]
+}

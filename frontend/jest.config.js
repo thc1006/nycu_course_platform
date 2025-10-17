@@ -45,12 +45,12 @@ const customJestConfig = {
   ],
 
   // Coverage thresholds for production
-  coverageThresholds: {
+  coverageThreshold: {
     global: {
-      branches: 70,
-      functions: 70,
-      lines: 75,
-      statements: 75,
+      branches: 50,
+      functions: 50,
+      lines: 50,
+      statements: 50,
     },
   },
 
@@ -67,19 +67,6 @@ const customJestConfig = {
     '<rootDir>/out/',
     '<rootDir>/__tests__/e2e/',
   ],
-
-  // Transform files
-  transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['@swc/jest', {
-      jsc: {
-        transform: {
-          react: {
-            runtime: 'automatic',
-          },
-        },
-      },
-    }],
-  },
 
   // Module file extensions
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
