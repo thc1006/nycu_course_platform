@@ -61,3 +61,7 @@ htmlcov/
 dist/
 build/
 .cache/
+
+# Data files (large raw data files)
+scraper/data/real_courses_nycu/*.json
+scraper/data/*/raw_data*.json
