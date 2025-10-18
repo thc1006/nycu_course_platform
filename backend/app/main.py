@@ -10,10 +10,10 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend.app.config import settings
-from backend.app.database.session import init_db, close_db
-from backend.app.routes import courses, semesters, advanced_search, search
-from backend.app.middleware.performance import setup_performance_middleware
+from app.config import settings
+from app.database.session import init_db, close_db
+from app.routes import courses, semesters, advanced_search, search, schedules
+from app.middleware.performance import setup_performance_middleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -75,6 +75,7 @@ app.include_router(semesters.router, prefix="/api/semesters", tags=["semesters"]
 app.include_router(courses.router, prefix="/api/courses", tags=["courses"])
 app.include_router(search.router, prefix="/api/courses", tags=["search"])
 app.include_router(advanced_search.router, prefix="/api/advanced", tags=["advanced"])
+app.include_router(schedules.router, prefix="/api/schedules", tags=["schedules"])
 
 
 @app.get("/", tags=["root"])

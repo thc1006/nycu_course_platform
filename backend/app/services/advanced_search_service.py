@@ -12,10 +12,10 @@ from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from backend.app.models.course import Course
-from backend.app.models.semester import Semester
-from backend.app.utils.cache import cache
-from backend.app.utils.exceptions import DatabaseError
+from app.models.course import Course
+from app.models.semester import Semester
+from app.utils.cache import cache
+from app.utils.exceptions import DatabaseError
 
 # Configure logging
 logger = logging.getLogger(__name__)

@@ -4,9 +4,12 @@ Semester database model.
 Defines the structure of semester records in the database.
 """
 
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from .course import Course
 
 
 class Semester(SQLModel, table=True):
@@ -22,6 +25,9 @@ class Semester(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     acy: int = Field(index=True, description="Academic year")
     sem: int = Field(description="Semester (1=Fall, 2=Spring)")
+
+    # Relationship to Course
+    courses: list["Course"] = Relationship(back_populates="semester")
 
     class Config:
         """Model configuration."""

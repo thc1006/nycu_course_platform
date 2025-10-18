@@ -11,10 +11,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database.session import get_session
-from backend.app.schemas.semester import SemesterResponse
-from backend.app.services.semester_service import SemesterService
-from backend.app.utils.exceptions import DatabaseError, SemesterNotFound
+from app.database.session import get_session
+from app.schemas.semester import SemesterResponse
+from app.services.semester_service import SemesterService
+from app.utils.exceptions import DatabaseError, SemesterNotFound
 
 # Set up logging
 logger = logging.getLogger(__name__)

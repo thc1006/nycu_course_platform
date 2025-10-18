@@ -11,10 +11,10 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database.session import get_session
-from backend.app.schemas.course import CourseResponse
-from backend.app.services.course_service import CourseService
-from backend.app.utils.exceptions import (
+from app.database.session import get_session
+from app.schemas.course import CourseResponse
+from app.services.course_service import CourseService
+from app.utils.exceptions import (
     CourseNotFound,
     DatabaseError,
     InvalidQueryParameter,
@@ -152,11 +152,23 @@ async def list_courses(
             f"teacher={teacher}, q={q}, limit={limit}, offset={offset})"
         )
 
-        return [
-            CourseResponse(
+        # Build response with semester info from relationship
+        result = []
+        for course in courses:
+            acy_val = course.semester.acy if course.semester else 0
+            sem_val = course.semester.sem if course.semester else 0
+
+            # Generate syllabus URLs
+            syllabus_url_zh = None
+            syllabus_url_en = None
+            if acy_val and sem_val and course.crs_no:
+                syllabus_url_zh = f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy_val}&Sem={sem_val}&CrsNo={course.crs_no}&lang=zh-tw"
+                syllabus_url_en = f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy_val}&Sem={sem_val}&CrsNo={course.crs_no}&lang=en"
+
+            result.append(CourseResponse(
                 id=course.id,
-                acy=course.acy,
-                sem=course.sem,
+                acy=acy_val,
+                sem=sem_val,
                 crs_no=course.crs_no,
                 name=course.name,
                 teacher=course.teacher,
@@ -164,10 +176,13 @@ async def list_courses(
                 dept=course.dept,
                 time=course.time,
                 classroom=course.classroom,
+                syllabus=course.syllabus,
+                syllabus_zh=course.syllabus_zh,
+                syllabus_url_zh=syllabus_url_zh,
+                syllabus_url_en=syllabus_url_en,
                 details=course.details,
-            )
-            for course in courses
-        ]
+            ))
+        return result
 
     except InvalidQueryParameter as e:
         logger.warning(f"Invalid query parameter: {e}")
@@ -250,6 +265,10 @@ async def get_course(
             dept=course_detail["dept"],
             time=course_detail["time"],
             classroom=course_detail["classroom"],
+            syllabus=course_detail.get("syllabus"),
+            syllabus_zh=course_detail.get("syllabus_zh"),
+            syllabus_url_zh=course_detail.get("syllabus_url_zh"),
+            syllabus_url_en=course_detail.get("syllabus_url_en"),
             details=course_detail["details"],
         )
 

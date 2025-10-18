@@ -11,9 +11,9 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database import semester as semester_db
-from backend.app.models.semester import Semester
-from backend.app.utils.exceptions import (
+from app.database import semester as semester_db
+from app.models.semester import Semester
+from app.utils.exceptions import (
     DatabaseError,
     InvalidQueryParameter,
     SemesterNotFound,

@@ -13,10 +13,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database.session import get_session
-from backend.app.schemas.course import CourseResponse
-from backend.app.services.search_service import SearchService
-from backend.app.utils.exceptions import DatabaseError, InvalidQueryParameter
+from app.database.session import get_session
+from app.schemas.course import CourseResponse
+from app.services.search_service import SearchService
+from app.utils.exceptions import DatabaseError, InvalidQueryParameter
 
 # Configure logging
 logger = logging.getLogger(__name__)

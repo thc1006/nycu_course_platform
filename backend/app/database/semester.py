@@ -11,13 +11,13 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
-from backend.app.database.base import (
+from app.database.base import (
     commit_with_error_handling,
     get_or_404,
     refresh_record,
 )
-from backend.app.models.semester import Semester
-from backend.app.utils.exceptions import DatabaseError, SemesterNotFound
+from app.models.semester import Semester
+from app.utils.exceptions import DatabaseError, SemesterNotFound
 
 # Set up logging
 logger = logging.getLogger(__name__)

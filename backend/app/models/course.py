@@ -4,8 +4,9 @@ Course database model.
 Defines the structure of course records in the database.
 """
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
+from pydantic import model_serializer
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
@@ -51,8 +52,8 @@ class Course(SQLModel, table=True):
     syllabus_zh: Optional[str] = Field(default=None, description="Course syllabus in Traditional Chinese")
     details: Optional[str] = Field(default=None, description="JSON string with additional metadata")
 
-    # Note: acy and sem are computed properties - we store semester_id
-    # If you need acy and sem, join with semesters table or load from semester_id context
+    # Relationship to Semester
+    semester: Optional["Semester"] = Relationship(back_populates="courses")
 
     @property
     def time(self) -> Optional[str]:
@@ -63,6 +64,62 @@ class Course(SQLModel, table=True):
     def classroom(self) -> Optional[str]:
         """Get classroom codes (alias for compatibility)."""
         return self.classroom_codes
+
+    @property
+    def acy(self) -> Optional[int]:
+        """Get academic year from semester."""
+        return self.semester.acy if self.semester else None
+
+    @property
+    def sem(self) -> Optional[int]:
+        """Get semester number from semester."""
+        return self.semester.sem if self.semester else None
+
+    @property
+    def syllabus_url_zh(self) -> Optional[str]:
+        """Generate Chinese syllabus URL."""
+        if self.semester and self.crs_no:
+            acy = self.semester.acy
+            sem = self.semester.sem
+            return f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy}&Sem={sem}&CrsNo={self.crs_no}&lang=zh-tw"
+        return None
+
+    @property
+    def syllabus_url_en(self) -> Optional[str]:
+        """Generate English syllabus URL."""
+        if self.semester and self.crs_no:
+            acy = self.semester.acy
+            sem = self.semester.sem
+            return f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy}&Sem={sem}&CrsNo={self.crs_no}&lang=en"
+        return None
+
+    @model_serializer(mode='wrap')
+    def _serialize_model(self, serializer: Any) -> dict[str, Any]:
+        """Custom serializer to include computed properties."""
+        import logging
+        logger = logging.getLogger(__name__)
+
+        data = serializer(self)
+        # Add computed properties
+        data['acy'] = self.acy
+        data['sem'] = self.sem
+        data['time'] = self.time
+        data['classroom'] = self.classroom
+
+        # Generate syllabus URLs directly (using the acy/sem from above to avoid semester access issues)
+        logger.info(f"Serializing course {self.crs_no}: acy={data['acy']}, sem={data['sem']}, semester={self.semester}")
+        if data['acy'] is not None and data['sem'] is not None and self.crs_no:
+            acy_val = data['acy']
+            sem_val = data['sem']
+            data['syllabus_url_zh'] = f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy_val}&Sem={sem_val}&CrsNo={self.crs_no}&lang=zh-tw"
+            data['syllabus_url_en'] = f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy_val}&Sem={sem_val}&CrsNo={self.crs_no}&lang=en"
+            logger.info(f"Generated syllabus URLs for {self.crs_no}")
+        else:
+            data['syllabus_url_zh'] = None
+            data['syllabus_url_en'] = None
+            logger.warning(f"Failed to generate syllabus URLs for {self.crs_no}: acy={data['acy']}, sem={data['sem']}, crs_no={self.crs_no}")
+
+        return data
 
     class Config:
         """Model configuration."""

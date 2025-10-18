@@ -23,6 +23,8 @@ class CourseBase(BaseModel):
     classroom: Optional[str] = Field(None, description="Classroom location code")
     syllabus: Optional[str] = Field(None, description="Course syllabus/outline (English)")
     syllabus_zh: Optional[str] = Field(None, description="Course syllabus in Traditional Chinese")
+    syllabus_url_zh: Optional[str] = Field(None, description="URL to NYCU official Chinese syllabus")
+    syllabus_url_en: Optional[str] = Field(None, description="URL to NYCU official English syllabus")
     details: Optional[str] = Field(None, description="JSON string with metadata")
 
 

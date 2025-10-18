@@ -130,10 +130,10 @@ export default function BrowsePage() {
           key={i}
           onClick={() => goToPage(i)}
           className={`
-            px-3 py-1 rounded-lg text-sm font-medium transition-all
+            px-3 py-1 rounded-xl text-sm font-medium transition-all
             ${
               i === currentPage
-                ? 'bg-blue-500 text-white'
+                ? 'bg-indigo-500 text-white'
                 : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
             }
           `}
@@ -164,17 +164,17 @@ export default function BrowsePage() {
             {/* Page Header */}
             <div className="mb-6 bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                Course Catalog
+                課程目錄
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
                 {loading ? (
                   <span className="inline-flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading courses...
+                    載入課程中...
                   </span>
                 ) : (
                   <>
-                    Showing {courses.length > 0 ? `${offset + 1}-${Math.min(offset + limit, total)}` : '0'} of {total.toLocaleString()} courses
+                    顯示 {courses.length > 0 ? `${offset + 1}-${Math.min(offset + limit, total)}` : '0'} / 共 {total.toLocaleString()} 門課程
                   </>
                 )}
               </p>
@@ -182,8 +182,8 @@ export default function BrowsePage() {
 
             {/* Error Message */}
             {error && (
-              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-                <p className="text-red-700 dark:text-red-400">{error}</p>
+              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                <p className="text-red-700 dark:text-red-400">載入課程失敗</p>
               </div>
             )}
 
@@ -231,10 +231,10 @@ export default function BrowsePage() {
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  No courses found
+                  找不到課程
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  Try adjusting your filters or search query
+                  請嘗試調整篩選條件或搜尋關鍵字
                 </p>
               </div>
             )}
@@ -246,10 +246,10 @@ export default function BrowsePage() {
                   <button
                     onClick={() => goToPage(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
                     <ChevronLeft className="h-4 w-4" />
-                    Previous
+                    上一頁
                   </button>
 
                   <div className="hidden sm:flex items-center gap-2">
@@ -257,7 +257,7 @@ export default function BrowsePage() {
                       <>
                         <button
                           onClick={() => goToPage(1)}
-                          className="px-3 py-1 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                          className="px-3 py-1 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                         >
                           1
                         </button>
@@ -276,7 +276,7 @@ export default function BrowsePage() {
                         )}
                         <button
                           onClick={() => goToPage(totalPages)}
-                          className="px-3 py-1 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                          className="px-3 py-1 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
                         >
                           {totalPages}
                         </button>
@@ -285,15 +285,15 @@ export default function BrowsePage() {
                   </div>
 
                   <span className="sm:hidden text-sm text-gray-600 dark:text-gray-400">
-                    Page {currentPage} of {totalPages}
+                    第 {currentPage} 頁 / 共 {totalPages} 頁
                   </span>
 
                   <button
                     onClick={() => goToPage(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   >
-                    Next
+                    下一頁
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -307,7 +307,7 @@ export default function BrowsePage() {
       <footer className="mt-12 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            NYCU Course Platform • {total.toLocaleString()} courses available
+            東華選課系統 • 共 {total.toLocaleString()} 門課程
           </p>
         </div>
       </footer>

@@ -2,7 +2,7 @@
 Middleware module for performance and security enhancements.
 """
 
-from backend.app.middleware.performance import (
+from app.middleware.performance import (
     CacheControlMiddleware,
     PerformanceMonitoringMiddleware,
     RateLimitMiddleware,

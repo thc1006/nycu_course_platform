@@ -40,11 +40,11 @@ export default function Document() {
         <meta name="theme-color" content="#2563eb" />
         <meta name="msapplication-TileColor" content="#2563eb" />
 
-        {/* Fonts - Inter from Google Fonts */}
+        {/* Fonts - Inter and Noto Sans TC from Google Fonts */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
 
@@ -64,9 +64,6 @@ export default function Document() {
         <meta name="twitter:title" content="NYCU Course Platform" />
         <meta name="twitter:description" content="Browse and search NYCU courses. Build your perfect schedule." />
         <meta name="twitter:image" content="/og-image.png" />
-
-        {/* Preload critical resources */}
-        <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
 
         {/* DNS Prefetch for external resources */}
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />

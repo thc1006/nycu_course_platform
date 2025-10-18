@@ -38,9 +38,18 @@ class Settings(BaseSettings):
 
     # CORS Configuration
     CORS_ORIGINS: list[str] = [
+        "http://localhost",
+        "http://localhost:80",
         "http://localhost:3000",
         "http://localhost:3001",
+        "http://localhost:3002",
+        "http://localhost:3003",
+        "http://localhost:3004",
         "http://localhost:5173",
+        "https://nymu.com.tw",
+        "https://www.nymu.com.tw",
+        "http://nymu.com.tw",
+        "http://www.nymu.com.tw",
     ]
 
     # JWT Configuration

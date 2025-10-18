@@ -1,5 +1,6 @@
 import React from 'react';
-import { Clock, MapPin, User, BookOpen, Plus, Check } from 'lucide-react';
+import Link from 'next/link';
+import { Clock, MapPin, User, BookOpen, Plus, Check, ChevronRight } from 'lucide-react';
 
 interface CourseCardProps {
   id: number;
@@ -112,33 +113,43 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           </div>
         )}
 
-        {/* Action Button */}
-        <button
-          onClick={handleAddToSchedule}
-          disabled={isAdded}
-          className={`
-            w-full mt-4 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg
-            font-medium transition-all duration-200 transform
-            ${isAdded
-              ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700'
-              : 'bg-blue-500 dark:bg-blue-600 text-white hover:bg-blue-600 dark:hover:bg-blue-700 hover:scale-[1.02]'
-            }
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800
-            disabled:opacity-75 disabled:cursor-not-allowed
-          `}
-        >
-          {isAdded ? (
-            <>
-              <Check className="h-4 w-4" />
-              Added to Schedule
-            </>
-          ) : (
-            <>
-              <Plus className="h-4 w-4" />
-              Add to Schedule
-            </>
-          )}
-        </button>
+        {/* Action Buttons */}
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={handleAddToSchedule}
+            disabled={isAdded}
+            className={`
+              flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl
+              font-medium transition-all duration-200 transform shadow-md hover:shadow-lg
+              ${isAdded
+                ? 'bg-green-500 dark:bg-green-600 text-white hover:bg-green-600 dark:hover:bg-green-700'
+                : 'bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white hover:scale-105'
+              }
+              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800
+              disabled:opacity-75 disabled:cursor-not-allowed
+            `}
+          >
+            {isAdded ? (
+              <>
+                <Check className="h-4 w-4" />
+                <span className="hidden sm:inline">Added to Schedule</span>
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Add to Schedule</span>
+              </>
+            )}
+          </button>
+
+          <Link
+            href={`/course/${id}`}
+            className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 border-2 border-gray-300 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
+          >
+            <span className="hidden sm:inline">查看詳情</span>
+            <ChevronRight className="h-4 w-4" />
+          </Link>
+        </div>
       </div>
 
       {/* Hover Effect Overlay */}

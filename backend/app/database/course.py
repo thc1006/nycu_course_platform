@@ -11,15 +11,17 @@ from typing import Optional
 from sqlalchemy import and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import joinedload
 
-from backend.app.database.base import (
+from app.database.base import (
     build_like_filter,
     commit_with_error_handling,
     get_or_404,
     refresh_record,
 )
-from backend.app.models.course import Course
-from backend.app.utils.exceptions import CourseNotFound, DatabaseError
+from app.models.course import Course
+from app.models.semester import Semester
+from app.utils.exceptions import CourseNotFound, DatabaseError
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -68,19 +70,22 @@ async def get_all_courses(
         >>> print(f"Found {len(courses)} courses")
     """
     try:
-        # Start building the query
-        statement = select(Course)
+        # Start building the query with joinedload for semester relationship
+        statement = select(Course).options(joinedload(Course.semester))
 
         # Build list of filter conditions
         filters = []
 
-        # Exact match filters
+        # Exact match filters - join with Semester table
         if acy is not None:
-            filters.append(Course.acy == acy)
+            statement = statement.join(Semester)
+            filters.append(Semester.acy == acy)
             logger.debug(f"Filtering by acy={acy}")
 
         if sem is not None:
-            filters.append(Course.sem == sem)
+            if acy is None:  # Join only if not already joined
+                statement = statement.join(Semester)
+            filters.append(Semester.sem == sem)
             logger.debug(f"Filtering by sem={sem}")
 
         # Case-insensitive LIKE filters
@@ -149,13 +154,24 @@ async def get_course(session: AsyncSession, course_id: int) -> Course:
         >>> print(f"Course: {course.name}")
     """
     logger.debug(f"Fetching course with ID: {course_id}")
-    course = await get_or_404(
-        session=session,
-        model=Course,
-        record_id=course_id,
-        error_message=f"Course with ID {course_id} not found",
-    )
-    return course
+    try:
+        statement = select(Course).options(joinedload(Course.semester)).where(Course.id == course_id)
+        result = await session.execute(statement)
+        course = result.scalar_one_or_none()
+
+        if course is None:
+            from app.utils.exceptions import CourseNotFound
+            raise CourseNotFound(message=f"Course with ID {course_id} not found")
+
+        return course
+    except CourseNotFound:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to retrieve course {course_id}: {e}")
+        raise DatabaseError(
+            message=f"Failed to retrieve course {course_id}",
+            original_error=e,
+        )
 
 
 async def get_courses_by_semester(
@@ -184,7 +200,9 @@ async def get_courses_by_semester(
     try:
         statement = (
             select(Course)
-            .where(Course.acy == acy, Course.sem == sem)
+            .options(joinedload(Course.semester))
+            .join(Semester)
+            .where(Semester.acy == acy, Semester.sem == sem)
             .order_by(Course.crs_no)
         )
 
@@ -232,6 +250,7 @@ async def search_courses(
     try:
         statement = (
             select(Course)
+            .options(joinedload(Course.semester))
             .where(
                 or_(
                     build_like_filter(Course.name, query),
@@ -258,15 +277,20 @@ async def search_courses(
 
 async def create_course(
     session: AsyncSession,
-    acy: int,
-    sem: int,
+    semester_id: int,
     crs_no: str,
-    name: Optional[str] = None,
+    name: str,
+    permanent_crs_no: Optional[str] = None,
     teacher: Optional[str] = None,
     credits: Optional[float] = None,
+    required: Optional[str] = None,
     dept: Optional[str] = None,
-    time: Optional[str] = None,
-    classroom: Optional[str] = None,
+    day_codes: Optional[str] = None,
+    time_codes: Optional[str] = None,
+    classroom_codes: Optional[str] = None,
+    url: Optional[str] = None,
+    syllabus: Optional[str] = None,
+    syllabus_zh: Optional[str] = None,
     details: Optional[str] = None,
 ) -> Course:
     """
@@ -274,15 +298,20 @@ async def create_course(
 
     Args:
         session: Database session
-        acy: Academic year
-        sem: Semester number
+        semester_id: Semester ID (foreign key)
         crs_no: Course number (required)
-        name: Course name/title
+        name: Course name/title (required)
+        permanent_crs_no: Permanent course number
         teacher: Instructor name(s)
         credits: Number of credits
+        required: Required/elective status
         dept: Department code
-        time: Time/schedule code
-        classroom: Classroom location code
+        day_codes: Day codes
+        time_codes: Time codes
+        classroom_codes: Classroom codes
+        url: Course URL
+        syllabus: Course syllabus/outline
+        syllabus_zh: Course syllabus in Traditional Chinese
         details: JSON string with additional metadata
 
     Returns:
@@ -294,8 +323,7 @@ async def create_course(
     Example:
         >>> course = await create_course(
         ...     session,
-        ...     acy=113,
-        ...     sem=1,
+        ...     semester_id=1,
         ...     crs_no="CS3101",
         ...     name="Introduction to Computer Science",
         ...     teacher="Dr. Smith",
@@ -307,15 +335,20 @@ async def create_course(
     try:
         # Create new course instance
         course = Course(
-            acy=acy,
-            sem=sem,
+            semester_id=semester_id,
             crs_no=crs_no,
             name=name,
+            permanent_crs_no=permanent_crs_no,
             teacher=teacher,
             credits=credits,
+            required=required,
             dept=dept,
-            time=time,
-            classroom=classroom,
+            day_codes=day_codes,
+            time_codes=time_codes,
+            classroom_codes=classroom_codes,
+            url=url,
+            syllabus=syllabus,
+            syllabus_zh=syllabus_zh,
             details=details,
         )
         session.add(course)

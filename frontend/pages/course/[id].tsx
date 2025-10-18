@@ -55,7 +55,7 @@ export default function CourseDetailPage() {
       schedule.push(courseId);
       localStorage.setItem('schedule', JSON.stringify(schedule));
       setIsInSchedule(true);
-      alert('Course added to schedule!');
+      alert('課程已加入課表！');
     }
   };
 
@@ -69,7 +69,7 @@ export default function CourseDetailPage() {
     const updatedSchedule = schedule.filter((id: number) => id !== courseId);
     localStorage.setItem('schedule', JSON.stringify(updatedSchedule));
     setIsInSchedule(false);
-    alert('Course removed from schedule!');
+    alert('課程已從課表移除！');
   };
 
   /**
@@ -82,8 +82,8 @@ export default function CourseDetailPage() {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: course?.name || 'NYCU Course',
-          text: `Check out this course: ${course?.name}`,
+          title: course?.name || '陽明交大課程',
+          text: `查看這門課程：${course?.name}`,
           url,
         });
       } catch (err) {
@@ -97,7 +97,7 @@ export default function CourseDetailPage() {
         setShareSuccess(true);
         setTimeout(() => setShareSuccess(false), 3000);
       } catch (err) {
-        alert('Failed to copy link');
+        alert('複製連結失敗');
       }
     }
   };
@@ -114,13 +114,13 @@ export default function CourseDetailPage() {
     return (
       <>
         <Head>
-          <title>Loading Course... - NYCU Course Platform</title>
+          <title>載入中... - 陽明交大選課系統</title>
         </Head>
         <div className="min-h-screen flex flex-col bg-gray-50">
           <Header />
           <main className="flex-1 container mx-auto px-4 py-8">
             <div className="max-w-4xl mx-auto">
-              <Loading message="Loading course details..." />
+              <Loading message="載入課程詳情中..." />
             </div>
           </main>
           <Footer />
@@ -134,20 +134,20 @@ export default function CourseDetailPage() {
     return (
       <>
         <Head>
-          <title>Error - NYCU Course Platform</title>
+          <title>錯誤 - 陽明交大選課系統</title>
         </Head>
         <div className="min-h-screen flex flex-col bg-gray-50">
           <Header />
           <main className="flex-1 container mx-auto px-4 py-8">
             <div className="max-w-4xl mx-auto">
               <Error
-                message="Failed to load course details"
+                message="載入課程詳情失敗"
                 onRetry={() => router.reload()}
               />
               <div className="mt-6 text-center">
                 <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Return to Home
-                  
+                  返回首頁
+
                 </Link>
               </div>
             </div>
@@ -163,7 +163,7 @@ export default function CourseDetailPage() {
     return (
       <>
         <Head>
-          <title>Course Not Found - NYCU Course Platform</title>
+          <title>找不到課程 - 陽明交大選課系統</title>
         </Head>
         <div className="min-h-screen flex flex-col bg-gray-50">
           <Header />
@@ -183,15 +183,15 @@ export default function CourseDetailPage() {
                 />
               </svg>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Course Not Found
+                找不到課程
               </h1>
               <p className="text-gray-600 mb-6">
-                The course you are looking for does not exist or has been removed.
+                您尋找的課程不存在或已被移除。
               </p>
               <div className="space-x-4">
                 <button
                   onClick={handleBack}
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <svg
                     className="mr-2 w-5 h-5"
@@ -206,11 +206,11 @@ export default function CourseDetailPage() {
                       d="M10 19l-7-7m0 0l7-7m-7 7h18"
                     />
                   </svg>
-                  Go Back
+                  返回上一頁
                 </button>
-                <Link href="/" className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                  Browse Courses
-                  
+                <Link href="/" className="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  瀏覽課程
+
                 </Link>
               </div>
             </div>
@@ -225,7 +225,7 @@ export default function CourseDetailPage() {
   return (
     <>
       <Head>
-        <title>{course.name || 'Course Details'} - NYCU Course Platform</title>
+        <title>{course.name || '課程詳情'} - 陽明交大選課系統</title>
         <meta
           name="description"
           content={`${course.name} - ${course.teacher || 'NYCU'} - ${course.credits} credits`}
@@ -256,7 +256,7 @@ export default function CourseDetailPage() {
                   d="M10 19l-7-7m0 0l7-7m-7 7h18"
                 />
               </svg>
-              Back
+              返回
             </button>
 
             {/* Action Buttons */}
@@ -266,7 +266,7 @@ export default function CourseDetailPage() {
                 {isInSchedule ? (
                   <button
                     onClick={handleRemoveFromSchedule}
-                    className="inline-flex items-center px-6 py-3 border border-red-300 text-base font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
+                    className="inline-flex items-center px-6 py-3 border border-red-300 text-base font-medium rounded-xl text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition"
                   >
                     <svg
                       className="mr-2 w-5 h-5"
@@ -281,12 +281,12 @@ export default function CourseDetailPage() {
                         d="M6 18L18 6M6 6l12 12"
                       />
                     </svg>
-                    Remove from Schedule
+                    從課表移除
                   </button>
                 ) : (
                   <button
                     onClick={handleAddToSchedule}
-                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                    className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
                   >
                     <svg
                       className="mr-2 w-5 h-5"
@@ -301,14 +301,14 @@ export default function CourseDetailPage() {
                         d="M12 4v16m8-8H4"
                       />
                     </svg>
-                    Add to Schedule
+                    加入課表
                   </button>
                 )}
 
                 {/* Share Button */}
                 <button
                   onClick={handleShare}
-                  className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
+                  className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition"
                 >
                   <svg
                     className="mr-2 w-5 h-5"
@@ -323,11 +323,11 @@ export default function CourseDetailPage() {
                       d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                     />
                   </svg>
-                  {shareSuccess ? 'Link Copied!' : 'Share'}
+                  {shareSuccess ? '連結已複製！' : '分享'}
                 </button>
 
                 {/* View Schedule Button */}
-                <Link href="/schedule" className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
+                <Link href="/schedule" className="inline-flex items-center px-6 py-3 border border-gray-300 text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition">
                   <svg
                       className="mr-2 w-5 h-5"
                       fill="none"
@@ -341,15 +341,15 @@ export default function CourseDetailPage() {
                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    View Schedule
+                    查看課表
                 </Link>
               </div>
 
               {/* Share Success Message */}
               {shareSuccess && (
-                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-xl">
                   <p className="text-sm text-green-800">
-                    Link copied to clipboard! Share it with your friends.
+                    連結已複製到剪貼簿！快分享給朋友吧。
                   </p>
                 </div>
               )}

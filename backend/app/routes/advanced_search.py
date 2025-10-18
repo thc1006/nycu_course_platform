@@ -10,9 +10,9 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database.session import get_session
-from backend.app.schemas.course import CourseResponse
-from backend.app.services.advanced_search_service import AdvancedSearchService
+from app.database.session import get_session
+from app.schemas.course import CourseResponse
+from app.services.advanced_search_service import AdvancedSearchService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -71,8 +71,8 @@ async def advanced_filter(
             "courses": [
                 CourseResponse(
                     id=c.id,
-                    acy=c.acy,
-                    sem=c.sem,
+                    acy=c.semester.acy if c.semester else None,
+                    sem=c.semester.sem if c.semester else None,
                     crs_no=c.crs_no,
                     name=c.name,
                     teacher=c.teacher,
@@ -154,8 +154,8 @@ async def search_with_suggestions(
             "results": [
                 CourseResponse(
                     id=c.id,
-                    acy=c.acy,
-                    sem=c.sem,
+                    acy=c.semester.acy if c.semester else None,
+                    sem=c.semester.sem if c.semester else None,
                     crs_no=c.crs_no,
                     name=c.name,
                     teacher=c.teacher,
@@ -203,8 +203,8 @@ async def get_recommendations(
         return [
             CourseResponse(
                 id=c.id,
-                acy=c.acy,
-                sem=c.sem,
+                acy=c.semester.acy if c.semester else None,
+                sem=c.semester.sem if c.semester else None,
                 crs_no=c.crs_no,
                 name=c.name,
                 teacher=c.teacher,

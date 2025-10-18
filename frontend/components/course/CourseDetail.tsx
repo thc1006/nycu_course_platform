@@ -22,6 +22,11 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'next-i18next';
 import { Course } from '../../lib/types';
+import {
+  parseCourseDetails,
+  formatScheduleDisplay,
+  formatClassroomDisplay,
+} from '@/utils/nycuParser';
 
 /**
  * Props for the CourseDetail component
@@ -60,6 +65,13 @@ const CourseDetail: React.FC<CourseDetailProps> = ({
       console.error('Failed to parse course details:', error);
       return null;
     }
+  }, [course.details]);
+
+  /**
+   * Parse time and classroom information from course.details
+   */
+  const timeClassroomInfo = useMemo(() => {
+    return parseCourseDetails(course.details);
   }, [course.details]);
 
   /**
@@ -183,8 +195,24 @@ const CourseDetail: React.FC<CourseDetailProps> = ({
               />
             )}
 
-            {/* Time */}
-            {course.time && (
+            {/* Course Code */}
+            {course.crs_no && (
+              <DetailItem
+                icon={
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
+                  />
+                }
+                label="Course Code"
+                value={course.crs_no}
+              />
+            )}
+
+            {/* Schedule - Parse from details.time_classroom */}
+            {timeClassroomInfo && timeClassroomInfo.schedule.length > 0 && (
               <DetailItem
                 icon={
                   <path
@@ -195,12 +223,12 @@ const CourseDetail: React.FC<CourseDetailProps> = ({
                   />
                 }
                 label="Schedule"
-                value={course.time}
+                value={formatScheduleDisplay(timeClassroomInfo.schedule, i18n.language === 'zh' ? 'zh' : 'en')}
               />
             )}
 
-            {/* Classroom */}
-            {course.classroom && (
+            {/* Classroom - Parse from details.time_classroom */}
+            {timeClassroomInfo && timeClassroomInfo.classroom && (
               <DetailItem
                 icon={
                   <>
@@ -219,10 +247,50 @@ const CourseDetail: React.FC<CourseDetailProps> = ({
                   </>
                 }
                 label="Classroom"
-                value={course.classroom}
+                value={formatClassroomDisplay(timeClassroomInfo.classroom, i18n.language === 'zh' ? 'zh' : 'en')}
               />
             )}
           </div>
+
+          {/* Official Syllabus Links */}
+          {(course.syllabus_url_zh || course.syllabus_url_en) && (
+            <div className="border-t pt-6 mb-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                <svg className="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Official Syllabus
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {course.syllabus_url_zh && (
+                  <a
+                    href={course.syllabus_url_zh}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition shadow-sm"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    查看中文大綱 (View Chinese Syllabus)
+                  </a>
+                )}
+                {course.syllabus_url_en && (
+                  <a
+                    href={course.syllabus_url_en}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition shadow-sm"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    View English Syllabus
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Course Syllabus / Outline Section */}
           {(course.syllabus || course.syllabus_zh) && (

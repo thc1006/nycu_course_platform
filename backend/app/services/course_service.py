@@ -12,9 +12,9 @@ from typing import Any, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.app.database import course as course_db
-from backend.app.models.course import Course
-from backend.app.utils.exceptions import (
+from app.database import course as course_db
+from app.models.course import Course
+from app.utils.exceptions import (
     CourseNotFound,
     DatabaseError,
     InvalidQueryParameter,
@@ -135,10 +135,20 @@ class CourseService:
             course = await course_db.get_course(self.session, course_id)
 
             # Build response with parsed details
+            acy = course.semester.acy if course.semester else 0
+            sem = course.semester.sem if course.semester else 0
+
+            # Generate syllabus URLs
+            syllabus_url_zh = None
+            syllabus_url_en = None
+            if course.semester and course.crs_no:
+                syllabus_url_zh = f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy}&Sem={sem}&CrsNo={course.crs_no}&lang=zh-tw"
+                syllabus_url_en = f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy}&Sem={sem}&CrsNo={course.crs_no}&lang=en"
+
             course_dict = {
                 "id": course.id,
-                "acy": course.acy,
-                "sem": course.sem,
+                "acy": acy,
+                "sem": sem,
                 "crs_no": course.crs_no,
                 "name": course.name,
                 "teacher": course.teacher,
@@ -146,6 +156,10 @@ class CourseService:
                 "dept": course.dept,
                 "time": course.time,
                 "classroom": course.classroom,
+                "syllabus": course.syllabus,
+                "syllabus_zh": course.syllabus_zh,
+                "syllabus_url_zh": syllabus_url_zh,
+                "syllabus_url_en": syllabus_url_en,
                 "details": course.details,
                 "parsed_details": self._parse_details(course.details),
             }

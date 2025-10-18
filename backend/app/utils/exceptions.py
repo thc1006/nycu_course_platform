@@ -127,6 +127,38 @@ class InvalidQueryParameter(Exception):
         return self.message
 
 
+class ScheduleNotFound(Exception):
+    """
+    Exception raised when a requested schedule cannot be found in the database.
+
+    This exception should be raised when:
+    - A schedule ID does not exist
+    - A schedule with specific criteria cannot be found
+
+    Attributes:
+        message: Human-readable error message
+        schedule_id: Optional schedule ID that was not found
+    """
+
+    def __init__(self, message: str = "Schedule not found", schedule_id: int | None = None):
+        """
+        Initialize ScheduleNotFound exception.
+
+        Args:
+            message: Error message to display
+            schedule_id: Optional ID of the schedule that was not found
+        """
+        self.message = message
+        self.schedule_id = schedule_id
+        super().__init__(self.message)
+
+    def __str__(self) -> str:
+        """String representation of the exception."""
+        if self.schedule_id:
+            return f"{self.message}: Schedule ID {self.schedule_id}"
+        return self.message
+
+
 class DatabaseError(Exception):
     """
     Exception raised when a database operation fails.

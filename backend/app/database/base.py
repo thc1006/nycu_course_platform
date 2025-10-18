@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlmodel import SQLModel
 
-from backend.app.utils.exceptions import CourseNotFound, DatabaseError, SemesterNotFound
+from app.utils.exceptions import CourseNotFound, DatabaseError, SemesterNotFound
 
 # Set up logging
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ async def get_or_404(
         DatabaseError: If a database error occurs during the operation
 
     Example:
-        >>> from backend.app.models.course import Course
+        >>> from app.models.course import Course
         >>> course = await get_or_404(session, Course, 123)
     """
     try:
@@ -204,7 +204,7 @@ async def count_records(
         DatabaseError: If the count query fails
 
     Example:
-        >>> from backend.app.models.course import Course
+        >>> from app.models.course import Course
         >>> count = await count_records(session, Course, Course.acy == 113)
     """
     try:
@@ -242,7 +242,7 @@ def build_like_filter(column: Any, value: str, case_insensitive: bool = True) ->
         SQLAlchemy filter expression
 
     Example:
-        >>> from backend.app.models.course import Course
+        >>> from app.models.course import Course
         >>> filter_expr = build_like_filter(Course.name, "computer")
         >>> statement = select(Course).where(filter_expr)
     """
