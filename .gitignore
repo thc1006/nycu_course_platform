@@ -70,6 +70,8 @@ scraper/data/*/raw_data*.json
 
 # Backups and Archives
 backups/
+docs/archived/
+scraper/archived/
 *.backup
 *.old
 
