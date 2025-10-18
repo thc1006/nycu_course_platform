@@ -67,3 +67,15 @@ scraper/data/real_courses_nycu/*.json
 !scraper/data/real_courses_nycu/raw_data_all_semesters.json
 scraper/data/*/raw_data*.json
 !scraper/data/real_courses_nycu/raw_data_all_semesters.json
+
+# Backups and Archives
+backups/
+*.backup
+*.old
+
+# Test artifacts
+.playwright-mcp/
+*.png
+*.jpg
+!public/**/*.png
+!public/**/*.jpg
