@@ -25,7 +25,7 @@ import {
   formatScheduleDisplay,
   formatClassroomDisplay,
 } from '@/utils/nycuParser';
-import { BookOpen, Plus, ChevronRight } from 'lucide-react';
+import { BookOpen, Plus, ChevronRight, ExternalLink } from 'lucide-react';
 
 interface CourseCardProps {
   course: {
@@ -41,7 +41,11 @@ interface CourseCardProps {
     required?: string;
     syllabus?: string;
     syllabus_zh?: string;
+    syllabus_url_zh?: string;
+    syllabus_url_en?: string;
     details?: string | null;
+    acy?: number;
+    sem?: number;
   };
   onAddSchedule?: (courseId: number) => void;
   className?: string;
@@ -62,7 +66,11 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   // Parse time and classroom from course details (NYCU format)
   const timeClassroomInfo = useMemo(() => {
-    return parseCourseDetails(course.details);
+    // Handle both string and object formats
+    const detailsString = typeof course.details === 'string'
+      ? course.details
+      : course.details ? JSON.stringify(course.details) : null;
+    return parseCourseDetails(detailsString);
   }, [course.details]);
 
   // Format schedule - use parsed data if available, otherwise fall back to old format
@@ -96,6 +104,28 @@ const CourseCard: React.FC<CourseCardProps> = ({
     ? lang === 'zh' ? '必修' : 'Required'
     : lang === 'zh' ? '選修' : 'Elective';
 
+  // Generate official NYCU timetable URL
+  // Use pre-built URLs from database if available, otherwise construct manually
+  const officialTimetableUrl = useMemo(() => {
+    // Prefer database URLs (they point to course outline, not course list)
+    if (lang === 'zh' && course.syllabus_url_zh) {
+      return course.syllabus_url_zh;
+    }
+    if (lang === 'en' && course.syllabus_url_en) {
+      return course.syllabus_url_en;
+    }
+    // Fallback to Chinese URL if available
+    if (course.syllabus_url_zh) {
+      return course.syllabus_url_zh;
+    }
+    // Last resort: construct URL manually (points to course outline)
+    if (course.acy && course.sem && course.crs_no) {
+      const langParam = lang === 'zh' ? 'zh-tw' : 'en';
+      return `https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy=${course.acy}&Sem=${course.sem}&CrsNo=${encodeURIComponent(course.crs_no)}&lang=${langParam}`;
+    }
+    return null;
+  }, [course.syllabus_url_zh, course.syllabus_url_en, course.acy, course.sem, course.crs_no, lang]);
+
   // Handle add schedule
   const handleAddSchedule = async () => {
     if (onAddSchedule) {
@@ -110,7 +140,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:shadow-lg hover:border-indigo-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-indigo-600 hover:scale-[1.02] dark:hover:bg-gray-750 ${className}`}
+      className={`group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 ease-out hover:shadow-xl hover:shadow-indigo-500/20 hover:border-indigo-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-indigo-600 hover:scale-[1.02] hover:-translate-y-1 dark:hover:bg-gray-750 card-shine ${className}`}
     >
       {/* Header with Code and Status */}
       <div className="mb-3 flex items-start justify-between gap-2">
@@ -145,20 +175,10 @@ const CourseCard: React.FC<CourseCardProps> = ({
           </div>
         )}
 
-        {(course.credits || course.dept) && (
-          <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-            {course.credits && (
-              <div className="flex items-center gap-1">
-                <span>📚</span>
-                <span>{course.credits} {lang === 'zh' ? '學分' : 'Cr'}</span>
-              </div>
-            )}
-            {course.dept && (
-              <div className="flex items-center gap-1">
-                <span>🏢</span>
-                <span>{course.dept}</span>
-              </div>
-            )}
+        {course.dept && (
+          <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+            <span>🏢</span>
+            <span>{course.dept}</span>
           </div>
         )}
 
@@ -189,27 +209,44 @@ const CourseCard: React.FC<CourseCardProps> = ({
 
       {/* Action Buttons */}
       {showActions && (
-        <div className="flex gap-2">
-          <button
-            onClick={handleAddSchedule}
-            disabled={isAdding}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 disabled:from-gray-400 disabled:to-gray-400 text-white text-sm font-medium rounded-xl transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-md hover:shadow-lg"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">
-              {lang === 'zh' ? '加入課表' : 'Add to Schedule'}
-            </span>
-          </button>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2">
+            <button
+              onClick={handleAddSchedule}
+              disabled={isAdding}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 disabled:from-gray-400 disabled:to-gray-400 text-white text-sm font-medium rounded-xl transition-all duration-200 transform hover:scale-105 button-press shadow-md hover:shadow-lg hover:shadow-indigo-500/30"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {lang === 'zh' ? '加入課表' : 'Add to Schedule'}
+              </span>
+            </button>
 
-          <Link
-            href={`/course/${course.id}`}
-            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border-2 border-gray-300 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            <span className="hidden sm:inline">
-              {lang === 'zh' ? '查看詳情' : 'View Details'}
-            </span>
-            <ChevronRight className="h-4 w-4" />
-          </Link>
+            <Link
+              href={`/course/${course.id}`}
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border-2 border-gray-300 dark:border-gray-600 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 button-press"
+            >
+              <span className="hidden sm:inline">
+                {lang === 'zh' ? '查看詳情' : 'View Details'}
+              </span>
+              <ChevronRight className="h-4 w-4" />
+            </Link>
+          </div>
+
+          {/* Official NYCU Timetable Link */}
+          {officialTimetableUrl && (
+            <a
+              href={officialTimetableUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-sm font-medium rounded-xl transition-all duration-200 transform hover:scale-105 button-press shadow-md hover:shadow-lg hover:shadow-emerald-500/30"
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="text-xs sm:text-sm">
+                {lang === 'zh' ? '在 NYCU 官方課表查看' : 'View on Official Timetable'}
+              </span>
+            </a>
+          )}
         </div>
       )}
 

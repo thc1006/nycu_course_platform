@@ -1,0 +1,36 @@
+# NYCU Course Platform - Robots.txt
+# Allow all search engines to index the site
+
+User-agent: *
+Allow: /
+Allow: /browse
+Allow: /schedule
+Allow: /course/*
+
+# Disallow admin and API endpoints
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /static/
+
+# Disallow duplicate content
+Disallow: /*?*sort=
+Disallow: /*?*page=
+Disallow: /*?*filter=
+
+# Special rules for major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://courses.nycu.edu.tw/sitemap.xml
+Sitemap: https://courses.nycu.edu.tw/sitemap-courses.xml

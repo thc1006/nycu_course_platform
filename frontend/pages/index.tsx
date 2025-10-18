@@ -6,6 +6,7 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { ChevronDown, Grid3x3, List, Filter, Search } from 'lucide-react';
 import CourseCard from '@/components/course/CourseCard';
 import AdvancedFilters, { FilterOptions } from '@/components/course/AdvancedFilters';
+import SEO from '@/components/SEO';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '';
 
@@ -23,6 +24,8 @@ interface Course {
   required?: string;
   syllabus?: string;
   syllabus_zh?: string;
+  syllabus_url_zh?: string;
+  syllabus_url_en?: string;
   acy?: number;
   sem?: number;
 }
@@ -132,7 +135,7 @@ export default function HomePage() {
         if (!semester) continue;
 
         const response = await fetch(
-          `${API_BASE}/api/courses/?acy=${semester.acy}&sem=${semester.sem}&limit=1000`
+          `${API_BASE}/api/courses/?acy=${semester.acy}&sem=${semester.sem}&limit=10000`
         );
 
         if (response.ok) {
@@ -312,6 +315,30 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+      {/* SEO Meta Tags */}
+      <SEO
+        title="NYCU 選課平台 - 70,000+ 門課程 | 陽明交大課程查詢系統"
+        description="陽明交大 (NYCU) 官方選課平台，提供超過 70,000 門課程查詢、課表規劃、課程評價。支援9個學期課程資料，即時更新課程時間、教室、學分資訊。智慧篩選、快速搜尋，讓選課更簡單！"
+        keywords={[
+          '陽明交大',
+          'NYCU',
+          '選課',
+          '課程查詢',
+          '交大課表',
+          '陽明課程',
+          'NYCU 課程',
+          '選課系統',
+          '課表規劃',
+          '陽明交大選課',
+          '國立陽明交通大學',
+          'NYCU courses',
+          'course registration',
+          'timetable'
+        ]}
+        ogImage="/og-image.png"
+        ogType="website"
+      />
+
       {/* Navigation */}
       <nav className="border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50 bg-white dark:bg-gray-900 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
@@ -366,11 +393,11 @@ export default function HomePage() {
         {/* Hero Section with Semester Selector */}
         <div className="bg-gradient-to-br from-indigo-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-8">
+            <div className="text-center mb-8 animate-fade-in-down">
               <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
                 探索課程
               </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400">
+              <p className="text-lg text-gray-600 dark:text-gray-400 animate-fade-in-up stagger-2">
                 選擇學期，瀏覽課程，建立您的專屬課表
               </p>
             </div>
@@ -534,13 +561,26 @@ export default function HomePage() {
                       ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3'
                       : 'grid-cols-1'
                   }`}>
-                    {filteredCourses.map(course => (
-                      <CourseCard
+                    {filteredCourses.map((course, index) => (
+                      <div
                         key={course.id}
-                        course={course}
-                        onAddSchedule={handleAddToSchedule}
-                        showActions={true}
-                      />
+                        className={`animate-fade-in-up ${
+                          index < 6
+                            ? `stagger-${Math.min(index + 1, 6)}`
+                            : ''
+                        }`}
+                        style={
+                          index >= 6
+                            ? { animationDelay: `${(index % 6) * 0.1}s` }
+                            : undefined
+                        }
+                      >
+                        <CourseCard
+                          course={course}
+                          onAddSchedule={handleAddToSchedule}
+                          showActions={true}
+                        />
+                      </div>
                     ))}
                   </div>
                 )}
