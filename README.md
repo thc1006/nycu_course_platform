@@ -21,20 +21,23 @@
 ## ✨ 特性
 
 ### 🎯 核心功能
-- ✅ **完整課程查詢**: 搜尋 99-114 年度所有課程
+- ✅ **完整課程查詢**: 搜尋 99-114 年度所有課程（70,000+ 門課程）
 - ✅ **多維度過濾**: 按學年、學期、系別、教師等過濾
 - ✅ **個性化排課**: 拖放式課程排課工具
 - ✅ **衝突檢測**: 自動偵測課程時間衝突
 - ✅ **課程詳情**: 完整的課程資訊展示
+- ✅ **官方連結整合**: 直接連接到 NYCU 官方課表系統
 - ✅ **課程分享**: 分享課程給其他學生
 - ✅ **日程導出**: 支持 iCal 和 CSV 導出
 
 ### 🏗️ 技術特性
 - ✅ **全棧 TypeScript**: 前後端類型安全
 - ✅ **非同步爬蟲**: 高效率多年度課程資料採集
+- ✅ **SEO 優化**: 完整的 meta 標籤、Open Graph、Schema.org 結構化資料
 - ✅ **RESTful API**: 完整的 API 設計
-- ✅ **響應式設計**: 完美適配所有設備
+- ✅ **響應式設計**: 完美適配所有設備，支援 Dark Mode
 - ✅ **高效能**: 50ms 內 API 響應
+- ✅ **Git LFS**: 大型檔案版本控制
 - ✅ **容器化**: Docker 和 Kubernetes 就緒
 - ✅ **自動化測試**: 90%+ 測試覆蓋率
 - ✅ **開發友好**: 完整的文檔和示例
@@ -508,13 +511,21 @@ cd frontend && npm test -- --coverage && npm run e2e
 
 ## 📝 文檔
 
-- [開發計劃](./DEVELOPMENT_PLAN.md) - 詳細的開發計劃和進度
-- [架構文檔](./ARCHITECTURE.md) - 系統架構和設計
-- [性能分析](./PERFORMANCE_ANALYSIS.md) - 性能評估和優化建議
+### 核心文檔
 - [部署指南](./DEPLOYMENT.md) - 完整的部署說明
 - [測試指南](./TESTING.md) - 測試策略和執行
-- [API 文檔](./docs/API_DOCUMENTATION.md) - API 參考
-- [安全指南](./docs/SECURITY.md) - 安全性考慮
+- [SEO 優化指南](./SEO_OPTIMIZATION_GUIDE.md) - SEO 最佳實踐和配置
+- [OG 圖片製作指南](./OG_IMAGE_CREATION_GUIDE.md) - 社交媒體縮圖製作
+- [專案深度掃描報告](./PROJECT_DEEP_SCAN_REPORT.md) - 完整的專案結構分析
+- [專案清理總結](./PROJECT_CLEANUP_SUMMARY.md) - 清理工作總結
+
+### 詳細文檔 (docs/ 目錄)
+- **規劃文檔**: [docs/planning/](./docs/planning/) - 開發計劃和設計文件
+- **分析報告**: [docs/analysis/](./docs/analysis/) - 性能分析和系統評估
+- **部署指南**: [docs/deployment/](./docs/deployment/) - 各種部署方案
+- **操作指南**: [docs/guides/](./docs/guides/) - 監控、爬蟲等操作指南
+- **規格說明**: [docs/specifications/](./docs/specifications/) - 技術規格文件
+- **歷史記錄**: [docs/archived/](./docs/archived/) - 完成報告和歷史文件
 
 ---
 
@@ -571,8 +582,17 @@ MIT License - 詳見 [LICENSE](./LICENSE)
 
 ---
 
-**最後更新**: 2025-10-16
-**版本**: 1.0.0
-**狀態**: ✅ 完全就緒生產
+**最後更新**: 2025-10-18
+**版本**: 1.1.0
+**狀態**: ✅ 生產就緒 + SEO 優化
+
+### 🆕 最近更新 (2025-10-18)
+- ✅ 完整 SEO 優化（meta 標籤、Open Graph、Twitter Cards、Schema.org）
+- ✅ 修復所有官方課表連結
+- ✅ Git LFS 配置（大型檔案版本控制）
+- ✅ 專案結構重組（48 個文檔整理至 8 個核心 + 分類目錄）
+- ✅ 爬蟲程式整合（15 個實驗版本 → 1 個主要版本）
+- ✅ 資料庫備份組織（Git LFS 追蹤）
+- ✅ 文檔分類整理（規劃/分析/部署/指南/規格）
 
 祝你使用愉快! 🎉
