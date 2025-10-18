@@ -17,12 +17,9 @@ const nextConfig = {
     return config;
   },
   async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: 'http://localhost:8000/api/:path*' // proxy to FastAPI backend
-      }
-    ];
+    // No rewrites needed - nginx handles /api/* proxying in production
+    // All traffic should go through nginx (port 80/443)
+    return [];
   }
 };
 

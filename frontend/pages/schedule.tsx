@@ -1,8 +1,9 @@
 /**
- * Schedule Page - Course Schedule Builder with Backend Integration
+ * Schedule Page - Local Storage Based Schedule Builder (Guest Mode)
  *
  * Features:
- * - Create and manage multiple schedules via backend API
+ * - Create and manage schedules stored in browser localStorage
+ * - No backend persistence - data is guest-only
  * - Drag-and-drop course search and addition
  * - Real-time conflict detection
  * - Automatic credit calculation
@@ -16,6 +17,15 @@ import { useRouter } from 'next/router';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Header, Footer } from '@/components';
 import { exportScheduleToPDF, exportScheduleWithGrid } from '@/lib/utils/pdfExporter';
+import {
+  getAllSchedules,
+  getScheduleById,
+  createSchedule as createScheduleInStorage,
+  deleteSchedule as deleteScheduleFromStorage,
+  addCourseToSchedule as addCourseToStorage,
+  removeCourseFromSchedule as removeCourseFromStorage,
+} from '@/lib/utils/scheduleStorage';
+import TimetableView from '@/components/schedule/TimetableView';
 
 interface Course {
   id: number;
@@ -51,7 +61,17 @@ interface Schedule {
   schedule_courses?: ScheduleCourse[];
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || '';
+// Dynamic API base URL that respects current protocol (HTTP/HTTPS)
+const getApiBase = (): string => {
+  // Server-side rendering: use empty string for relative URLs
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  // Client-side: use current page's origin (protocol + host)
+  // This ensures HTTPS pages make HTTPS requests, preventing Mixed Content errors
+  return window.location.origin;
+};
 
 export default function SchedulePage() {
   const router = useRouter();
@@ -64,25 +84,33 @@ export default function SchedulePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Course[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [apiBase, setApiBase] = useState<string>('');
+  const [showTimetable, setShowTimetable] = useState(false);
 
   // New schedule form
   const [newScheduleName, setNewScheduleName] = useState('');
-  const [newScheduleAcy, setNewScheduleAcy] = useState(114); // Updated to current academic year
+  const [newScheduleAcy, setNewScheduleAcy] = useState(114);
   const [newScheduleSem, setNewScheduleSem] = useState(1);
   const [availableSemesters, setAvailableSemesters] = useState<Array<{acy: number; sem: number}>>([]);
 
-  // Load available semesters and set latest as default
+  // Initialize API base URL on client-side only
+  useEffect(() => {
+    setApiBase(getApiBase());
+  }, []);
+
+  // Load available semesters from backend (still needed for course search)
   useEffect(() => {
     const loadSemesters = async () => {
       try {
-        const response = await fetch(`${API_BASE}/api/semesters`);
+        if (!apiBase) return;
+        const response = await fetch(`${apiBase}/api/semesters/`);
         if (response.ok) {
           const semesters = await response.json();
           setAvailableSemesters(semesters);
 
           // Set the latest semester as default for new schedules
           if (semesters.length > 0) {
-            const latest = semesters[0]; // API returns semesters sorted by latest first
+            const latest = semesters[0];
             setNewScheduleAcy(latest.acy);
             setNewScheduleSem(latest.sem);
           }
@@ -92,28 +120,25 @@ export default function SchedulePage() {
       }
     };
 
-    loadSemesters();
-  }, []);
+    if (apiBase) {
+      loadSemesters();
+    }
+  }, [apiBase]);
 
-  // Load user's schedules
+  // Load schedules from localStorage on mount
   useEffect(() => {
-    loadSchedules();
+    loadSchedulesFromStorage();
   }, []);
 
-  const loadSchedules = async () => {
+  const loadSchedulesFromStorage = () => {
     try {
       setLoading(true);
-      // For demo, we'll fetch all schedules for test_user
-      // In production, this would use actual authentication
-      const response = await fetch(`${API_BASE}/api/schedules/user/test_user`);
-      if (!response.ok) throw new Error('Failed to load schedules');
-
-      const data = await response.json();
-      setSchedules(data);
+      const storedSchedules = getAllSchedules();
+      setSchedules(storedSchedules);
 
       // Load first schedule by default
-      if (data.length > 0 && !currentSchedule) {
-        await loadScheduleDetail(data[0].id);
+      if (storedSchedules.length > 0 && !currentSchedule) {
+        loadScheduleDetail(storedSchedules[0].id);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load schedules');
@@ -122,40 +147,34 @@ export default function SchedulePage() {
     }
   };
 
-  const loadScheduleDetail = async (scheduleId: number) => {
+  const loadScheduleDetail = (scheduleId: number) => {
     try {
-      const response = await fetch(`${API_BASE}/api/schedules/${scheduleId}`);
-      if (!response.ok) throw new Error('Failed to load schedule details');
-
-      const data = await response.json();
-      setCurrentSchedule(data);
+      const schedule = getScheduleById(scheduleId);
+      if (schedule) {
+        setCurrentSchedule(schedule);
+      } else {
+        setError('Schedule not found');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load schedule');
     }
   };
 
-  const createSchedule = async () => {
+  const createSchedule = () => {
     if (!newScheduleName.trim()) {
       alert('請輸入課表名稱');
       return;
     }
 
     try {
-      const response = await fetch(`${API_BASE}/api/schedules`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: newScheduleName,
-          acy: newScheduleAcy,
-          sem: newScheduleSem,
-          user_id: 'test_user',
-        }),
-      });
+      const newSchedule = createScheduleInStorage(
+        newScheduleName,
+        newScheduleAcy,
+        newScheduleSem
+      );
 
-      if (!response.ok) throw new Error('Failed to create schedule');
-
-      const newSchedule = await response.json();
-      setSchedules([...schedules, newSchedule]);
+      const updatedSchedules = getAllSchedules();
+      setSchedules(updatedSchedules);
       setCurrentSchedule(newSchedule);
       setShowCreateModal(false);
       setNewScheduleName('');
@@ -174,7 +193,7 @@ export default function SchedulePage() {
       setSearchLoading(true);
       // Filter by current schedule's semester
       const response = await fetch(
-        `${API_BASE}/api/courses/?q=${encodeURIComponent(query)}&acy=${currentSchedule.acy}&sem=${currentSchedule.sem}&limit=20`
+        `${apiBase}/api/courses/?q=${encodeURIComponent(query)}&acy=${currentSchedule.acy}&sem=${currentSchedule.sem}&limit=20`
       );
 
       if (!response.ok) throw new Error('Search failed');
@@ -189,73 +208,59 @@ export default function SchedulePage() {
     }
   };
 
-  const addCourseToSchedule = async (courseId: number) => {
+  const addCourseToSchedule = async (course: Course) => {
     if (!currentSchedule) return;
 
     try {
-      const response = await fetch(
-        `${API_BASE}/api/schedules/${currentSchedule.id}/courses`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ course_id: courseId }),
-        }
-      );
+      // Add course to localStorage
+      const updatedSchedule = addCourseToStorage(currentSchedule.id, course);
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Failed to add course');
+      if (updatedSchedule) {
+        // Refresh schedules and current schedule
+        const updatedSchedules = getAllSchedules();
+        setSchedules(updatedSchedules);
+        setCurrentSchedule(updatedSchedule);
+        setShowSearchModal(false);
+        setSearchQuery('');
+        setSearchResults([]);
       }
-
-      // Reload schedule to get updated data
-      await loadScheduleDetail(currentSchedule.id);
-      setShowSearchModal(false);
-      setSearchQuery('');
-      setSearchResults([]);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to add course');
     }
   };
 
-  const removeCourseFromSchedule = async (courseId: number) => {
+  const removeCourseFromSchedule = (courseId: number) => {
     if (!currentSchedule) return;
 
     try {
-      const response = await fetch(
-        `${API_BASE}/api/schedules/${currentSchedule.id}/courses`,
-        {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ course_id: courseId }),
-        }
-      );
+      const updatedSchedule = removeCourseFromStorage(currentSchedule.id, courseId);
 
-      if (!response.ok) throw new Error('Failed to remove course');
-
-      // Reload schedule
-      await loadScheduleDetail(currentSchedule.id);
+      if (updatedSchedule) {
+        // Refresh schedules and current schedule
+        const updatedSchedules = getAllSchedules();
+        setSchedules(updatedSchedules);
+        setCurrentSchedule(updatedSchedule);
+      }
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to remove course');
     }
   };
 
-  const deleteSchedule = async (scheduleId: number) => {
+  const deleteSchedule = (scheduleId: number) => {
     if (!confirm('確定要刪除這個課表嗎？')) return;
 
     try {
-      const response = await fetch(`${API_BASE}/api/schedules/${scheduleId}`, {
-        method: 'DELETE',
-      });
+      const success = deleteScheduleFromStorage(scheduleId);
 
-      if (!response.ok) throw new Error('Failed to delete schedule');
+      if (success) {
+        const updatedSchedules = getAllSchedules();
+        setSchedules(updatedSchedules);
 
-      const updatedSchedules = schedules.filter((s) => s.id !== scheduleId);
-      setSchedules(updatedSchedules);
-
-      if (currentSchedule?.id === scheduleId) {
-        setCurrentSchedule(updatedSchedules[0] || null);
-        if (updatedSchedules[0]) {
-          await loadScheduleDetail(updatedSchedules[0].id);
+        if (currentSchedule?.id === scheduleId) {
+          setCurrentSchedule(updatedSchedules[0] || null);
+          if (updatedSchedules[0]) {
+            loadScheduleDetail(updatedSchedules[0].id);
+          }
         }
       }
     } catch (err) {
@@ -297,31 +302,48 @@ export default function SchedulePage() {
     <>
       <Head>
         <title>我的課表 - NYCU Course Platform</title>
-        <meta name="description" content="管理您的 NYCU 課程表" />
+        <meta name="description" content="管理您的 NYCU 課程表（訪客模式）" />
       </Head>
 
       <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
         <Header />
 
         <main className="flex-1 container mx-auto px-4 py-8">
-          {/* Header */}
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-                我的課表
-              </h1>
-              <p className="text-gray-600 dark:text-gray-400">
-                建立和管理您的個人課程表
-              </p>
+          {/* Header with Guest Mode Notice */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                  我的課表
+                </h1>
+                <p className="text-gray-600 dark:text-gray-400">
+                  建立和管理您的個人課程表
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition flex items-center gap-2"
+              >
+                <span>➕</span>
+                <span>新增課表</span>
+              </button>
             </div>
 
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition flex items-center gap-2"
-            >
-              <span>➕</span>
-              <span>新增課表</span>
-            </button>
+            {/* Guest Mode Notice */}
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">ℹ️</span>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
+                    訪客模式
+                  </h3>
+                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                    您的課表儲存在瀏覽器本地，不會上傳至伺服器。清除瀏覽器資料或使用其他裝置將無法存取此課表。
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Schedule Tabs */}
@@ -375,6 +397,13 @@ export default function SchedulePage() {
                       className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition"
                     >
                       ➕ 新增課程
+                    </button>
+
+                    <button
+                      onClick={() => setShowTimetable(true)}
+                      className="px-4 py-2 bg-purple-600 text-white rounded-lg font-medium hover:bg-purple-700 transition"
+                    >
+                      📅 課表預覽
                     </button>
 
                     {/* PDF Export Dropdown */}
@@ -606,7 +635,7 @@ export default function SchedulePage() {
                         </p>
                       </div>
                       <button
-                        onClick={() => addCourseToSchedule(course.id)}
+                        onClick={() => addCourseToSchedule(course)}
                         className="ml-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
                       >
                         添加
@@ -637,6 +666,14 @@ export default function SchedulePage() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Timetable Preview Modal */}
+      {showTimetable && currentSchedule && (
+        <TimetableView
+          courses={currentSchedule.schedule_courses || []}
+          onClose={() => setShowTimetable(false)}
+        />
       )}
     </>
   );

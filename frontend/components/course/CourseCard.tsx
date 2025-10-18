@@ -15,7 +15,7 @@
  * - Action buttons (Add to Schedule, View Details)
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
@@ -126,8 +126,8 @@ const CourseCard: React.FC<CourseCardProps> = ({
     return null;
   }, [course.syllabus_url_zh, course.syllabus_url_en, course.acy, course.sem, course.crs_no, lang]);
 
-  // Handle add schedule
-  const handleAddSchedule = async () => {
+  // Handle add schedule - memoized to prevent re-creating on every render
+  const handleAddSchedule = useCallback(async () => {
     if (onAddSchedule) {
       setIsAdding(true);
       try {
@@ -136,7 +136,7 @@ const CourseCard: React.FC<CourseCardProps> = ({
         setIsAdding(false);
       }
     }
-  };
+  }, [onAddSchedule, course.id]);
 
   return (
     <div
@@ -256,4 +256,14 @@ const CourseCard: React.FC<CourseCardProps> = ({
   );
 };
 
-export default CourseCard;
+// Memoize the component to prevent unnecessary re-renders
+// Only re-render if the course.id changes
+export default React.memo(CourseCard, (prevProps, nextProps) => {
+  // Return true if props are equal (skip re-render)
+  // Return false if props are different (re-render)
+  return (
+    prevProps.course.id === nextProps.course.id &&
+    prevProps.course.name === nextProps.course.name &&
+    prevProps.showActions === nextProps.showActions
+  );
+});

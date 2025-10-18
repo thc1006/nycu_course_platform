@@ -1,11 +1,32 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useTransition, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Header from '../components/common/Header';
-import { FilterPanel, FilterState } from '../components/FilterPanel';
-import CourseCard from '../components/course/CourseCard';
 import { ChevronLeft, ChevronRight, Loader2, Filter, X } from 'lucide-react';
 import axios from 'axios';
+import useSWR from 'swr';
+import { FixedSizeGrid as Grid } from 'react-window';
+
+// Dynamic imports for code splitting
+const FilterPanel = dynamic<any>(() => import('../components/FilterPanel').then(mod => mod.FilterPanel), {
+  loading: () => <div className="h-64 skeleton rounded-xl" />,
+  ssr: false,
+});
+
+const CourseCard = dynamic(() => import('../components/course/CourseCard'), {
+  loading: () => <div className="h-72 skeleton rounded-xl" />,
+  ssr: true,
+});
+
+// Import FilterState type separately for type safety
+interface FilterState {
+  semesters: number[];
+  departments: string[];
+  minCredits: number | null;
+  maxCredits: number | null;
+  keywords: string;
+}
 
 interface Course {
   id: number;
@@ -20,11 +41,18 @@ interface Course {
   sem: number;
 }
 
+// SWR fetcher function for POST requests
+const fetcher = async (url: string, params: any) => {
+  const response = await axios.post(url, {}, {
+    params,
+    timeout: 10000,
+  });
+  return response.data;
+};
+
 export default function BrowsePage() {
   const { t } = useTranslation('common');
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const [filters, setFilters] = useState<FilterState>({
     semesters: [],
     departments: [],
@@ -32,62 +60,102 @@ export default function BrowsePage() {
     maxCredits: null,
     keywords: '',
   });
-  const [total, setTotal] = useState(0);
   const [limit] = useState(12);
   const [offset, setOffset] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [debouncedFilters, setDebouncedFilters] = useState(filters);
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(searchQuery);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
-  const fetchCourses = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params: any = {
-        limit,
-        offset,
-      };
-
-      if (filters.semesters.length > 0) {
-        params.semesters = filters.semesters;
-      }
-      if (filters.departments.length > 0) {
-        params.departments = filters.departments;
-      }
-      if (filters.minCredits !== null) {
-        params.min_credits = filters.minCredits;
-      }
-      if (filters.maxCredits !== null) {
-        params.max_credits = filters.maxCredits;
-      }
-      if (filters.keywords || searchQuery) {
-        params.keywords = [filters.keywords || searchQuery].filter(Boolean);
-      }
-
-      // Use relative path to enable Next.js rewrites proxy to backend API
-      const response = await axios.post(
-        '/api/advanced/filter',
-        {},
-        {
-          params,
-          timeout: 10000, // 10 second timeout
-        }
-      );
-
-      setCourses(response.data.courses || []);
-      setTotal(response.data.total || 0);
-    } catch (err) {
-      setError('Failed to fetch courses');
-      console.error(err);
-      setCourses([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, offset, limit, searchQuery]);
-
+  // Track window size for responsive grid
   useEffect(() => {
-    fetchCourses();
-  }, [fetchCourses]);
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    // Set initial size
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Debounce filters and search query (500ms delay)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFilters(filters);
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [filters, searchQuery]);
+
+  // Build API parameters from filters
+  const apiParams = useMemo(() => {
+    const params: any = {
+      limit,
+      offset,
+    };
+
+    if (debouncedFilters.semesters.length > 0) {
+      params.semesters = debouncedFilters.semesters;
+    }
+    if (debouncedFilters.departments.length > 0) {
+      params.departments = debouncedFilters.departments;
+    }
+    if (debouncedFilters.minCredits !== null) {
+      params.min_credits = debouncedFilters.minCredits;
+    }
+    if (debouncedFilters.maxCredits !== null) {
+      params.max_credits = debouncedFilters.maxCredits;
+    }
+    if (debouncedFilters.keywords || debouncedSearchQuery) {
+      params.keywords = [debouncedFilters.keywords || debouncedSearchQuery].filter(Boolean);
+    }
+
+    return params;
+  }, [debouncedFilters, debouncedSearchQuery, limit, offset]);
+
+  // Use SWR for data fetching with caching
+  const { data, error, isLoading, isValidating } = useSWR(
+    ['/api/advanced/filter', apiParams],
+    ([url, params]) => fetcher(url, params),
+    {
+      revalidateOnFocus: false,      // Don't refetch on window focus
+      revalidateOnReconnect: false,  // Don't refetch on reconnect
+      dedupingInterval: 60000,       // Dedupe requests within 60 seconds
+      keepPreviousData: true,        // Keep previous data while loading new data
+    }
+  );
+
+  const courses = data?.courses || [];
+  const total = data?.total || 0;
+
+  // Calculate grid layout for virtual scrolling
+  const gridConfig = useMemo(() => {
+    // Tailwind breakpoints: sm: 640px, md: 768px, lg: 1024px, xl: 1280px
+    let columnCount = 1;
+    if (windowSize.width >= 1280) {
+      columnCount = 3; // xl: 3 columns
+    } else if (windowSize.width >= 768) {
+      columnCount = 2; // md: 2 columns
+    }
+
+    const columnWidth = Math.floor((windowSize.width - 64) / columnCount); // 64px for padding
+    const rowHeight = 350; // Course card height
+    const rowCount = Math.ceil(courses.length / columnCount);
+
+    return {
+      columnCount,
+      columnWidth,
+      rowHeight,
+      rowCount,
+    };
+  }, [windowSize.width, courses.length]);
 
   const handleFilterChange = (newFilters: FilterState) => {
     setFilters(newFilters);
@@ -99,14 +167,35 @@ export default function BrowsePage() {
     setOffset(0);
   };
 
-  const handleAddToSchedule = (courseId: number) => {
+  const handleAddToSchedule = useCallback((courseId: number) => {
     const savedSchedule = localStorage.getItem('schedule');
     const schedule = savedSchedule ? JSON.parse(savedSchedule) : [];
     if (!schedule.includes(courseId)) {
       schedule.push(courseId);
       localStorage.setItem('schedule', JSON.stringify(schedule));
     }
-  };
+  }, []);
+
+  // Virtual grid cell renderer
+  const Cell = useCallback(({ columnIndex, rowIndex, style }: any) => {
+    const courseIndex = rowIndex * gridConfig.columnCount + columnIndex;
+
+    // Return empty cell if no course at this index
+    if (courseIndex >= courses.length) {
+      return null;
+    }
+
+    const course = courses[courseIndex];
+
+    return (
+      <div style={style} className="p-3">
+        <CourseCard
+          course={course}
+          onAddSchedule={handleAddToSchedule}
+        />
+      </div>
+    );
+  }, [courses, gridConfig.columnCount, handleAddToSchedule]);
 
   const totalPages = Math.ceil(total / limit);
   const currentPage = Math.floor(offset / limit) + 1;
@@ -228,10 +317,10 @@ export default function BrowsePage() {
                 課程目錄
               </h1>
               <p className="text-gray-600 dark:text-gray-400">
-                {loading ? (
+                {isLoading || isValidating ? (
                   <span className="inline-flex items-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    載入課程中...
+                    {isLoading ? '搜尋課程中...' : '更新中...'}
                   </span>
                 ) : (
                   <>
@@ -249,7 +338,7 @@ export default function BrowsePage() {
             )}
 
             {/* Loading State */}
-            {loading && (
+            {isLoading && (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {[...Array(6)].map((_, i) => (
                   <div
@@ -261,34 +350,27 @@ export default function BrowsePage() {
               </div>
             )}
 
-            {/* Course Grid */}
-            {!loading && courses.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
-                {courses.map((course, index) => (
-                  <div
-                    key={course.id}
-                    className={`animate-fade-in-up ${
-                      index < 6
-                        ? `stagger-${Math.min(index + 1, 6)}`
-                        : ''
-                    }`}
-                    style={
-                      index >= 6
-                        ? { animationDelay: `${(index % 6) * 0.1}s` }
-                        : undefined
-                    }
-                  >
-                    <CourseCard
-                      course={course}
-                      onAddSchedule={handleAddToSchedule}
-                    />
-                  </div>
-                ))}
+            {/* Course Grid - Virtual Scrolling */}
+            {!isLoading && courses.length > 0 && gridConfig.rowCount > 0 && (
+              <div className={`mb-8 transition-opacity duration-300 ${isValidating ? 'opacity-60' : 'opacity-100'}`}>
+                <Grid
+                  columnCount={gridConfig.columnCount}
+                  columnWidth={gridConfig.columnWidth}
+                  height={Math.min(gridConfig.rowHeight * gridConfig.rowCount, 1200)} // Max height 1200px
+                  rowCount={gridConfig.rowCount}
+                  rowHeight={gridConfig.rowHeight}
+                  width={windowSize.width >= 1024 ? windowSize.width * 0.75 - 64 : windowSize.width - 64} // Adjust for layout
+                  style={{
+                    overflowX: 'hidden',
+                  }}
+                >
+                  {Cell}
+                </Grid>
               </div>
             )}
 
             {/* Empty State */}
-            {!loading && courses.length === 0 && !error && (
+            {!isLoading && courses.length === 0 && !error && (
               <div className="bg-white dark:bg-gray-800 rounded-xl p-12 text-center border border-gray-200 dark:border-gray-700">
                 <div className="mb-4">
                   <svg

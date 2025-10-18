@@ -32,7 +32,6 @@ const NYCU_SERVICES = {
   core: [
     { name: 'NYCU 單一入口', nameEn: 'NYCU Portal', url: 'https://portal.nycu.edu.tw/', icon: '🏛️', description: '校園服務入口' },
     { name: '課程時間表', nameEn: 'Course Timetable', url: 'https://timetable.nycu.edu.tw/', icon: '📅', description: '官方課表系統' },
-    { name: '選課系統', nameEn: 'Course Registration', url: 'https://course.nycu.edu.tw/', icon: '📝', description: '線上選課' },
     { name: 'E3 教學平台', nameEn: 'E3 Learning', url: 'https://portal.nycu.edu.tw/', icon: '🎓', description: '數位學習平台' },
   ],
   academic: [
@@ -40,7 +39,8 @@ const NYCU_SERVICES = {
     { name: '圖書館', nameEn: 'Library', url: 'https://www.lib.nycu.edu.tw/', icon: '📚', description: '圖書資源' },
   ],
   services: [
-    { name: 'Microsoft 365', nameEn: 'M365', url: 'https://portal.nycu.edu.tw/', icon: '💼', description: '電子郵件與雲端' },
+    { name: 'Microsoft 365', nameEn: 'M365', url: 'https://portal.nycu.edu.tw/#/m365/index', icon: '💼', description: '電子郵件與雲端' },
+    { name: '距離畢業距離(需VPN)', nameEn: 'Graduation Distance', url: 'https://eportfolio.nycu.edu.tw/grade/distance', icon: '🎓', description: '畢業學分查詢' },
     { name: '校務系統', nameEn: 'Campus Systems', url: 'https://portal.nycu.edu.tw/#/links/nycu', icon: '⚙️', description: '70+ 服務' },
   ]
 };
@@ -108,7 +108,7 @@ const Header: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-lg font-bold text-gray-900 dark:text-white">NYCU Course</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400 -mt-1">交大選課</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 -mt-1">陽明交大選課</span>
             </div>
           </Link>
 

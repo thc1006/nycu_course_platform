@@ -75,9 +75,15 @@ scraper/archived/
 *.backup
 *.old
 
-# Test artifacts
+# Test artifacts and temporary files
 .playwright-mcp/
+playwright-report/
+test-results/
 *.png
 *.jpg
 !public/**/*.png
 !public/**/*.jpg
+
+# Archived documents and legacy scripts
+docs/archived/
+scripts/legacy/
