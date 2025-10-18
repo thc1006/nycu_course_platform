@@ -27,7 +27,7 @@ async def advanced_filter(
     min_credits: Optional[float] = Query(None, ge=0, description="Minimum credits"),
     max_credits: Optional[float] = Query(None, ge=0, description="Maximum credits"),
     keywords: Optional[list[str]] = Query(None, description="Keywords to search"),
-    limit: int = Query(200, ge=1, le=1000, description="Max results"),
+    limit: int = Query(200, ge=1, le=10000, description="Max results"),
     offset: int = Query(0, ge=0, description="Result offset"),
 ):
     """

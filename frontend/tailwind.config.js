@@ -90,13 +90,30 @@ module.exports = {
         sm: 'calc(var(--radius, 8px) - 4px)',
       },
       animation: {
+        // Existing animations
         'slide-in': 'slideIn 0.3s ease-out',
-        'fade-in': 'fadeIn 0.3s ease-out',
+        'fade-in': 'fadeIn 0.5s ease-out',
         'scale-in': 'scaleIn 0.2s ease-out',
         'spin': 'spin 1s linear infinite',
         'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+
+        // New premium animations
+        'slide-up': 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-down': 'slideDown 0.3s ease-out',
+        'slide-left': 'slideLeft 0.3s ease-out',
+        'slide-right': 'slideRight 0.3s ease-out',
+        'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
+        'fade-in-down': 'fadeInDown 0.4s ease-out',
+        'bounce-in': 'bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        'shimmer': 'shimmer 2s linear infinite',
+        'gradient-shift': 'gradientShift 3s ease infinite',
+        'float': 'float 3s ease-in-out infinite',
+        'glow': 'glow 2s ease-in-out infinite',
+        'card-hover': 'cardHover 0.3s ease-out forwards',
+        'stagger-fade-in': 'fadeIn 0.5s ease-out',
       },
       keyframes: {
+        // Existing keyframes
         slideIn: {
           '0%': { transform: 'translateY(-10px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
@@ -116,6 +133,126 @@ module.exports = {
         pulse: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '.5' },
+        },
+
+        // New premium keyframes
+        slideUp: {
+          '0%': {
+            transform: 'translateY(30px)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateY(0)',
+            opacity: '1',
+          },
+        },
+        slideDown: {
+          '0%': {
+            transform: 'translateY(-20px)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateY(0)',
+            opacity: '1',
+          },
+        },
+        slideLeft: {
+          '0%': {
+            transform: 'translateX(30px)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateX(0)',
+            opacity: '1',
+          },
+        },
+        slideRight: {
+          '0%': {
+            transform: 'translateX(-30px)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateX(0)',
+            opacity: '1',
+          },
+        },
+        fadeInUp: {
+          '0%': {
+            transform: 'translateY(20px)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateY(0)',
+            opacity: '1',
+          },
+        },
+        fadeInDown: {
+          '0%': {
+            transform: 'translateY(-20px)',
+            opacity: '0',
+          },
+          '100%': {
+            transform: 'translateY(0)',
+            opacity: '1',
+          },
+        },
+        bounceIn: {
+          '0%': {
+            transform: 'scale(0.3)',
+            opacity: '0',
+          },
+          '50%': {
+            transform: 'scale(1.05)',
+            opacity: '0.8',
+          },
+          '70%': {
+            transform: 'scale(0.9)',
+            opacity: '1',
+          },
+          '100%': {
+            transform: 'scale(1)',
+            opacity: '1',
+          },
+        },
+        shimmer: {
+          '0%': {
+            backgroundPosition: '-1000px 0',
+          },
+          '100%': {
+            backgroundPosition: '1000px 0',
+          },
+        },
+        gradientShift: {
+          '0%, 100%': {
+            backgroundPosition: '0% 50%',
+          },
+          '50%': {
+            backgroundPosition: '100% 50%',
+          },
+        },
+        float: {
+          '0%, 100%': {
+            transform: 'translateY(0px)',
+          },
+          '50%': {
+            transform: 'translateY(-10px)',
+          },
+        },
+        glow: {
+          '0%, 100%': {
+            boxShadow: '0 0 5px rgba(99, 102, 241, 0.5), 0 0 10px rgba(99, 102, 241, 0.3)',
+          },
+          '50%': {
+            boxShadow: '0 0 20px rgba(99, 102, 241, 0.8), 0 0 30px rgba(99, 102, 241, 0.5)',
+          },
+        },
+        cardHover: {
+          '0%': {
+            transform: 'scale(1) translateY(0)',
+          },
+          '100%': {
+            transform: 'scale(1.02) translateY(-2px)',
+          },
         },
       },
       backdropBlur: {

@@ -2,6 +2,9 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Accept build arguments
+ARG NEXT_PUBLIC_API_BASE_URL=
+
 # Copy package files
 COPY frontend/package*.json ./
 
@@ -10,6 +13,9 @@ RUN npm ci --production
 
 # Copy application code
 COPY frontend/ .
+
+# Set environment variable for build
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 
 # Build application
 RUN npm run build

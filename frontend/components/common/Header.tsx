@@ -15,20 +15,53 @@
  * ```
  */
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import LanguageSwitcher from '../LanguageSwitcher';
+import { ExternalLink, ChevronDown } from 'lucide-react';
 
 /**
  * Header component with responsive navigation
  *
  * @returns {JSX.Element} The rendered header component
  */
+// NYCU Official Services Integration
+const NYCU_SERVICES = {
+  core: [
+    { name: 'NYCU 單一入口', nameEn: 'NYCU Portal', url: 'https://portal.nycu.edu.tw/', icon: '🏛️', description: '校園服務入口' },
+    { name: '課程時間表', nameEn: 'Course Timetable', url: 'https://timetable.nycu.edu.tw/', icon: '📅', description: '官方課表系統' },
+    { name: '選課系統', nameEn: 'Course Registration', url: 'https://course.nycu.edu.tw/', icon: '📝', description: '線上選課' },
+    { name: 'E3 教學平台', nameEn: 'E3 Learning', url: 'https://portal.nycu.edu.tw/', icon: '🎓', description: '數位學習平台' },
+  ],
+  academic: [
+    { name: '學籍成績', nameEn: 'Academic Records', url: 'https://portal.nycu.edu.tw/', icon: '📊', description: '成績查詢系統' },
+    { name: '圖書館', nameEn: 'Library', url: 'https://www.lib.nycu.edu.tw/', icon: '📚', description: '圖書資源' },
+  ],
+  services: [
+    { name: 'Microsoft 365', nameEn: 'M365', url: 'https://portal.nycu.edu.tw/', icon: '💼', description: '電子郵件與雲端' },
+    { name: '校務系統', nameEn: 'Campus Systems', url: 'https://portal.nycu.edu.tw/#/links/nycu', icon: '⚙️', description: '70+ 服務' },
+  ]
+};
+
 const Header: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isServicesDropdownOpen, setIsServicesDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsServicesDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   /**
    * Toggle mobile menu visibility
@@ -113,6 +146,115 @@ const Header: React.FC = () => {
                 <div className="absolute inset-0 bg-indigo-100/50 dark:bg-indigo-800/30 rounded-xl -z-10"></div>
               )}
             </Link>
+
+            {/* NYCU Services Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsServicesDropdownOpen(!isServicesDropdownOpen)}
+                className="relative flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-700"
+              >
+                <span className="text-base">🏛️</span>
+                <span>NYCU 服務</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isServicesDropdownOpen ? 'rotate-180' : ''}`} />
+              </button>
+
+              {/* Dropdown Menu */}
+              {isServicesDropdownOpen && (
+                <div className="absolute top-full right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-fade-in">
+                  <div className="bg-gradient-to-r from-emerald-600 to-teal-600 p-4 text-white">
+                    <h3 className="font-bold text-lg flex items-center gap-2">
+                      <span>🏛️</span>
+                      NYCU 單一入口服務
+                    </h3>
+                    <p className="text-xs text-emerald-100 mt-1">快速存取交大校園系統</p>
+                  </div>
+
+                  <div className="p-3 max-h-96 overflow-y-auto">
+                    {/* Core Services */}
+                    <div className="mb-4">
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 px-2">核心服務</h4>
+                      <div className="space-y-1">
+                        {NYCU_SERVICES.core.map((service) => (
+                          <a
+                            key={service.url}
+                            href={service.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 group"
+                          >
+                            <span className="text-2xl">{service.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-900 dark:text-white text-sm">{service.name}</span>
+                                <ExternalLink className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{service.description}</p>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Academic Services */}
+                    <div className="mb-4">
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 px-2">學術資源</h4>
+                      <div className="space-y-1">
+                        {NYCU_SERVICES.academic.map((service) => (
+                          <a
+                            key={service.url}
+                            href={service.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200 group"
+                          >
+                            <span className="text-2xl">{service.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-900 dark:text-white text-sm">{service.name}</span>
+                                <ExternalLink className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{service.description}</p>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Other Services */}
+                    <div>
+                      <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 px-2">其他服務</h4>
+                      <div className="space-y-1">
+                        {NYCU_SERVICES.services.map((service) => (
+                          <a
+                            key={service.url}
+                            href={service.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200 group"
+                          >
+                            <span className="text-2xl">{service.icon}</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-gray-900 dark:text-white text-sm">{service.name}</span>
+                                <ExternalLink className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">{service.description}</p>
+                            </div>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 dark:bg-gray-700/50 px-4 py-3 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
+                      ⚠️ 部分服務需要登入 NYCU 單一入口
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <LanguageSwitcher />
           </nav>
 

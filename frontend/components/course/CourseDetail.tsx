@@ -341,7 +341,9 @@ const CourseDetail: React.FC<CourseDetailProps> = ({
               </h2>
               <div className="bg-gray-50 rounded-lg p-6">
                 <dl className="space-y-3">
-                  {Object.entries(parsedDetails).map(([key, value]) => (
+                  {Object.entries(parsedDetails)
+                    .filter(([key]) => !['num_limit', 'reg_num', 'hours', 'time_classroom', 'cos_id', 'cos_code'].includes(key))
+                    .map(([key, value]) => (
                     <div key={key} className="flex flex-col sm:flex-row">
                       <dt className="font-medium text-gray-700 sm:w-1/3 capitalize">
                         {key.replace(/_/g, ' ')}:

@@ -22,11 +22,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        - NEXT_PUBLIC_API_BASE_URL=
     container_name: nycu-frontend
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_API_URL=https://nymu.com.tw/api
+      - NEXT_PUBLIC_API_BASE_URL=
       - NODE_ENV=production
     depends_on:
       - backend

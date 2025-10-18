@@ -5,6 +5,7 @@ This module defines FastAPI routes for course-related operations including
 listing courses with filtering, searching, and retrieving individual course details.
 """
 
+import json
 import logging
 from typing import Annotated, Optional
 
@@ -25,6 +26,17 @@ logger = logging.getLogger(__name__)
 
 # Create router
 router = APIRouter()
+
+
+def parse_details_json(details: Optional[str]) -> Optional[dict]:
+    """Parse details JSON string to dict."""
+    if not details or not isinstance(details, str):
+        return None
+    try:
+        return json.loads(details)
+    except (json.JSONDecodeError, TypeError):
+        logger.warning(f"Failed to parse details JSON: {details[:100] if details else 'None'}")
+        return None
 
 
 @router.get("/", response_model=list[CourseResponse], status_code=status.HTTP_200_OK)
@@ -76,7 +88,7 @@ async def list_courses(
         Query(
             description="Maximum number of results to return",
             ge=1,
-            le=1000,
+            le=10000,
             example=50,
         ),
     ] = 200,
@@ -165,6 +177,9 @@ async def list_courses(
                 syllabus_url_zh = f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy_val}&Sem={sem_val}&CrsNo={course.crs_no}&lang=zh-tw"
                 syllabus_url_en = f"https://timetable.nycu.edu.tw/?r=main/crsoutline&Acy={acy_val}&Sem={sem_val}&CrsNo={course.crs_no}&lang=en"
 
+            # Parse details JSON string to dict
+            details_parsed = parse_details_json(course.details)
+
             result.append(CourseResponse(
                 id=course.id,
                 acy=acy_val,
@@ -180,7 +195,7 @@ async def list_courses(
                 syllabus_zh=course.syllabus_zh,
                 syllabus_url_zh=syllabus_url_zh,
                 syllabus_url_en=syllabus_url_en,
-                details=course.details,
+                details=details_parsed,
             ))
         return result
 
@@ -254,6 +269,9 @@ async def get_course(
 
         logger.info(f"Successfully retrieved course {course_id}")
 
+        # Parse details JSON string to dict
+        details_parsed = parse_details_json(course_detail.get("details"))
+
         return CourseResponse(
             id=course_detail["id"],
             acy=course_detail["acy"],
@@ -269,7 +287,7 @@ async def get_course(
             syllabus_zh=course_detail.get("syllabus_zh"),
             syllabus_url_zh=course_detail.get("syllabus_url_zh"),
             syllabus_url_en=course_detail.get("syllabus_url_en"),
-            details=course_detail["details"],
+            details=details_parsed,
         )
 
     except CourseNotFound as e:

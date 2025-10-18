@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Header } from '../components/Header';
+import Header from '../components/common/Header';
 import { FilterPanel, FilterState } from '../components/FilterPanel';
-import { CourseCard } from '../components/CourseCard';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import CourseCard from '../components/course/CourseCard';
+import { ChevronLeft, ChevronRight, Loader2, Filter, X } from 'lucide-react';
 import axios from 'axios';
 
 interface Course {
@@ -36,6 +36,7 @@ export default function BrowsePage() {
   const [limit] = useState(12);
   const [offset, setOffset] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const fetchCourses = useCallback(async () => {
     setLoading(true);
@@ -151,11 +152,71 @@ export default function BrowsePage() {
       <Header onSearch={handleSearch} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Mobile Filter Toggle Button */}
+        <button
+          onClick={() => setShowMobileFilters(!showMobileFilters)}
+          className="lg:hidden fixed bottom-6 right-6 z-40 flex items-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg transition-all transform hover:scale-105 active:scale-95"
+        >
+          {showMobileFilters ? (
+            <>
+              <X className="h-5 w-5" />
+              <span className="font-medium">關閉篩選</span>
+            </>
+          ) : (
+            <>
+              <Filter className="h-5 w-5" />
+              <span className="font-medium">篩選課程</span>
+            </>
+          )}
+        </button>
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar - Filters */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <FilterPanel onFilterChange={handleFilterChange} />
+          {/* Desktop: Always visible, Mobile: Overlay modal */}
+          <div className={`
+            lg:col-span-1
+            ${showMobileFilters ? 'fixed' : 'hidden'}
+            lg:block
+            inset-0 lg:relative
+            z-30 lg:z-auto
+            ${showMobileFilters ? 'bg-black/50' : ''}
+            lg:bg-transparent
+          `}
+          onClick={(e) => {
+            // Close on backdrop click (mobile only)
+            if (e.target === e.currentTarget && showMobileFilters) {
+              setShowMobileFilters(false);
+            }
+          }}
+          >
+            <div className={`
+              ${showMobileFilters ? 'absolute' : 'hidden'}
+              lg:relative lg:block
+              ${showMobileFilters ? 'left-0 top-0 bottom-0 w-80 max-w-[85vw]' : ''}
+              bg-gray-50 dark:bg-gray-900 lg:bg-transparent
+              overflow-y-auto
+              lg:sticky lg:top-24
+              p-4 lg:p-0
+              shadow-xl lg:shadow-none
+              transform transition-transform duration-300
+              ${showMobileFilters ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            `}>
+              <div className="lg:hidden flex items-center justify-between mb-4 pb-4 border-b border-gray-300 dark:border-gray-700">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white">篩選課程</h2>
+                <button
+                  onClick={() => setShowMobileFilters(false)}
+                  className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <X className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
+              <FilterPanel onFilterChange={(filters) => {
+                handleFilterChange(filters);
+                // Auto-close mobile filters after applying
+                if (showMobileFilters) {
+                  setShowMobileFilters(false);
+                }
+              }} />
             </div>
           </div>
 
@@ -193,7 +254,8 @@ export default function BrowsePage() {
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={i}
-                    className="h-72 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"
+                    className="h-72 skeleton rounded-xl animate-fade-in"
+                    style={{ animationDelay: `${i * 0.1}s` }}
                   />
                 ))}
               </div>
@@ -201,13 +263,26 @@ export default function BrowsePage() {
 
             {/* Course Grid */}
             {!loading && courses.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8 animate-fade-in">
-                {courses.map(course => (
-                  <CourseCard
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+                {courses.map((course, index) => (
+                  <div
                     key={course.id}
-                    {...course}
-                    onAddToSchedule={handleAddToSchedule}
-                  />
+                    className={`animate-fade-in-up ${
+                      index < 6
+                        ? `stagger-${Math.min(index + 1, 6)}`
+                        : ''
+                    }`}
+                    style={
+                      index >= 6
+                        ? { animationDelay: `${(index % 6) * 0.1}s` }
+                        : undefined
+                    }
+                  >
+                    <CourseCard
+                      course={course}
+                      onAddSchedule={handleAddToSchedule}
+                    />
+                  </div>
                 ))}
               </div>
             )}

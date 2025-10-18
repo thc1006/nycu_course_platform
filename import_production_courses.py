@@ -14,7 +14,7 @@ from typing import Dict, List, Tuple
 
 PROJECT_ROOT = Path("/home/thc1006/dev/nycu_course_platform")
 DB_PATH = PROJECT_ROOT / "nycu_course_platform.db"
-DATA_FILE = PROJECT_ROOT / "scraper/data/real_courses_nycu/courses_all_semesters.json"
+DATA_FILE = PROJECT_ROOT / "data/real_courses_nycu/courses_all_semesters.json"
 BATCH_SIZE = 500  # Insert in batches for performance
 
 class Colors:

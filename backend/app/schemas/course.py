@@ -4,9 +4,13 @@ Course Pydantic schemas for API serialization.
 Defines request and response schemas for course endpoints.
 """
 
-from typing import Any, Optional
+import json
+import logging
+from typing import Any, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_serializer, computed_field
+
+logger = logging.getLogger(__name__)
 
 
 class CourseBase(BaseModel):
@@ -25,13 +29,13 @@ class CourseBase(BaseModel):
     syllabus_zh: Optional[str] = Field(None, description="Course syllabus in Traditional Chinese")
     syllabus_url_zh: Optional[str] = Field(None, description="URL to NYCU official Chinese syllabus")
     syllabus_url_en: Optional[str] = Field(None, description="URL to NYCU official English syllabus")
-    details: Optional[str] = Field(None, description="JSON string with metadata")
+    # Note: details field is intentionally NOT included here - see CourseResponse for Union type
 
 
 class CourseCreate(CourseBase):
     """Schema for creating a new course."""
 
-    pass
+    details: Optional[str] = Field(None, description="JSON string with metadata")
 
 
 class CourseUpdate(BaseModel):
@@ -52,6 +56,7 @@ class CourseResponse(CourseBase):
     """Schema for course API responses."""
 
     id: int = Field(..., description="Course ID")
+    details: Optional[Union[dict[str, Any], str]] = Field(None, description="Course metadata as JSON object or string")
 
     class Config:
         """Pydantic config."""
@@ -69,7 +74,7 @@ class CourseResponse(CourseBase):
                 "dept": "CS",
                 "time": "Mon 10:00-12:00",
                 "classroom": "A101",
-                "details": '{"capacity": 30}',
+                "details": {"capacity": 30},
             }
         }
 

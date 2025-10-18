@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import ORJSONResponse
 
 from app.config import settings
 from app.database.session import init_db, close_db
@@ -47,7 +48,7 @@ async def lifespan(app: FastAPI):
         logger.error(f"Error during shutdown: {e}")
 
 
-# Create FastAPI application
+# Create FastAPI application with ORJSON for proper UTF-8 encoding
 app = FastAPI(
     title=settings.app_title,
     description="NYCU Course Platform API for browsing and searching university courses",
@@ -56,6 +57,7 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
     lifespan=lifespan,
+    default_response_class=ORJSONResponse,  # Properly handles UTF-8 characters
 )
 
 # Add CORS middleware

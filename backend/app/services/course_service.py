@@ -207,9 +207,9 @@ class CourseService:
                 parameter_name="query",
             )
 
-        if limit <= 0 or limit > 1000:
+        if limit <= 0 or limit > 10000:
             raise InvalidQueryParameter(
-                message="Limit must be between 1 and 1000",
+                message="Limit must be between 1 and 10000",
                 parameter_name="limit",
                 parameter_value=str(limit),
             )
@@ -519,9 +519,9 @@ class CourseService:
                 )
 
         # Validate limit
-        if limit <= 0 or limit > 1000:
+        if limit <= 0 or limit > 10000:
             raise InvalidQueryParameter(
-                message="Limit must be between 1 and 1000",
+                message="Limit must be between 1 and 10000",
                 parameter_name="limit",
                 parameter_value=str(limit),
             )
